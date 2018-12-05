@@ -7,7 +7,7 @@ var PaktQuiz = function(quizData){
       line;
 
   for (i=0;i<lines.length;i++){
-    line = lines[i].trim();
+    line = PaktQuiz.escapeHTML(lines[i]);
 
     if (
       (PaktQuiz.startsWithNumber(line) && // new question?
@@ -35,6 +35,29 @@ PaktQuiz.startsWithNumber = function(line){
   return line.match(PaktQuiz.startsWithNumberMatcher) !== null;
 };
 
+PaktQuiz.escapeHTML = function(line) {
+  return line.
+    trim().
+    replace(/“|”/g, '"').
+    replace(/’/g, "'").
+    replace(/&/g, "&amp;").
+    replace(/</g, "&lt;").
+    replace(/>/g, "&gt;").
+    replace(/"/g, "&quot;").
+    replace(/'/g, "&#039;");
+};
+
+PaktQuiz.prototype.render = function(){
+  var i, buffer = [];
+  for (i=0;i<this.questions.length;i++){
+    buffer.push(
+      this.questions[i].render()
+    );
+  }
+
+  return buffer.join("\n");
+};
+
 PaktQuiz.Question = function(questionAndChoices){
   this.choices = [];
   this.selection = null;
@@ -56,13 +79,36 @@ PaktQuiz.Question = function(questionAndChoices){
 
 PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
 
+PaktQuiz.Question.prototype.render = function(){
+  var i, buffer = [];
+
+  buffer.push(
+    "<p><strong>" + this.number + ". "  + this.question + "</strong></p>"
+  );
+
+  for (i=0;i<this.choices.length;i++){
+    buffer.push(this.choices[i].render());
+  }
+
+  return buffer.join("\n");
+};
+
 PaktQuiz.Choice = function(textAndValue){
   var split = textAndValue.split(":");
   this.text = split[0];
   this.value = parseInt(split[1].trim(), 10);
 };
 
+PaktQuiz.Choice.prototype.render = function(){
+  return "<p>" + this.text + " -- " + this.value + "</p>";
+};
+
 window.onload = function(){
   var quizData = document.getElementById("pakt_quiz").innerHTML.trim();
-  console.log(new PaktQuiz(quizData));
+
+  var quiz = new PaktQuiz(quizData);
+  var elem = document.createElement("div");
+
+  elem.innerHTML = quiz.render();
+  document.body.appendChild(elem);
 };

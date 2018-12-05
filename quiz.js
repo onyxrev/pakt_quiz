@@ -49,14 +49,32 @@ PaktQuiz.escapeHTML = function(line) {
 };
 
 PaktQuiz.prototype.render = function(){
-  var i, buffer = [];
+  var quiz = this;
+  this.elem = document.createElement("ol");
+
+  var i;
   for (i=0;i<this.questions.length;i++){
-    buffer.push(
-      this.questions[i].render()
-    );
+    this.elem.appendChild(this.questions[i].render());
   }
 
-  return buffer.join("\n");
+  var gradeButton = document.createElement("button");
+  gradeButton.innerHTML = "Grade";
+  gradeButton.onclick = function(){
+    alert("Grade: " + quiz.grade());
+  };
+
+  this.elem.appendChild(gradeButton);
+
+  return this.elem;
+};
+
+PaktQuiz.prototype.grade = function(){
+  var i, grade = 0;
+  for (i=0;i<this.questions.length;i++){
+    grade += this.questions[i].serialize();
+  }
+
+  return grade;
 };
 
 PaktQuiz.Question = function(questionAndChoices){
@@ -98,42 +116,55 @@ PaktQuiz.Question.prototype.detectType = function(){
 PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
 
 PaktQuiz.Question.prototype.render = function(){
-  var buffer = [this.renderPrompt()];
+  this.element = document.createElement("li");
+  this.element.appendChild(this.renderPrompt());
 
   switch(this.type) {
   case "multiple_choice":
-    buffer.push(this.renderAsMultipleChoice());
+    this.element.appendChild(this.renderAsMultipleChoice());
     break;
   case "scale":
-    buffer.push(this.renderAsScale());
+    this.element.appendChild(this.renderAsScale());
     break;
   }
 
-  return buffer.join("\n");
+  return this.element;
 };
 
 PaktQuiz.Question.prototype.renderPrompt = function(){
-  return "<li><strong>" + this.text + "</strong></li>";
+  var s = document.createElement("strong");
+  s.innerHTML = this.text;
+
+  return s;
 }
 
 PaktQuiz.Question.prototype.renderAsMultipleChoice = function(){
-  var i, buffer = [];
-
+  var d = document.createElement("div"), i;
   for (i=0;i<this.choices.length;i++){
-    buffer.push(this.choices[i].render());
+    d.appendChild(this.choices[i].render());
   }
 
-  return buffer.join("\n");
+  return d;
 };
 
 PaktQuiz.Question.prototype.renderAsScale = function(){
-  var i, buffer = [];
-
+  var d = document.createElement("div"), i;
   for (i=this.scaleMin;i<=this.scaleMax;i++){
-    buffer.push(new PaktQuiz.Scale(i, this, i-1).render());
+    d.appendChild(new PaktQuiz.Scale(i, this, i-1).render());
   }
 
-  return buffer.join("\n");
+  return d;
+};
+
+PaktQuiz.Question.prototype.serialize = function(){
+  var inputs = this.element.getElementsByTagName('input');
+
+  var i;
+  for (i=0;i<inputs.length;i++){
+    if (inputs[i].checked) return parseInt(inputs[i].value, 10);
+  }
+
+  return 0;
 };
 
 PaktQuiz.Choice = function(textAndValue, question, number){
@@ -153,16 +184,31 @@ PaktQuiz.Choice.prototype.name = function(){
   return "question_" + this.question.number;
 };
 
-PaktQuiz.Choice.prototype.label = function(){
-  return '<label for="' + this.id() + '">' + this.text + '</label>';
+PaktQuiz.Choice.prototype.renderLabel = function(){
+  var l = document.createElement("label");
+  l.htmlFor = this.id();
+  l.innerHTML = this.text;
+
+  return l;
 };
 
-PaktQuiz.Choice.prototype.input = function(){
-  return '<input type="radio" id="' + this.id() + '" name="' + this.name() + '" value="' + this.value + '" />';
+PaktQuiz.Choice.prototype.renderInput = function(){
+  var i = document.createElement("input");
+  i.type = "radio";
+  i.id = this.id();
+  i.name = this.name();
+  i.value = this.value;
+
+  return i;
 };
 
 PaktQuiz.Choice.prototype.render = function(){
-  return "<p>" + this.label() + this.input() + "</p>";
+  this.element = document.createElement("p");
+  this.input   = this.renderInput();
+
+  this.element.appendChild(this.renderLabel());
+  this.element.appendChild(this.input);
+  return this.element;
 };
 
 PaktQuiz.Scale = function(value, question, number){
@@ -174,16 +220,14 @@ PaktQuiz.Scale = function(value, question, number){
 
 PaktQuiz.Scale.prototype.id = PaktQuiz.Choice.prototype.id;
 PaktQuiz.Scale.prototype.name = PaktQuiz.Choice.prototype.name;
-PaktQuiz.Scale.prototype.label = PaktQuiz.Choice.prototype.label;
-PaktQuiz.Scale.prototype.input = PaktQuiz.Choice.prototype.input;
+PaktQuiz.Scale.prototype.renderLabel = PaktQuiz.Choice.prototype.renderLabel;
+PaktQuiz.Scale.prototype.renderInput = PaktQuiz.Choice.prototype.renderInput;
 PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
+PaktQuiz.Scale.prototype.serialize = PaktQuiz.Choice.prototype.serialize;
 
 window.onload = function(){
   var quizData = document.getElementById("pakt_quiz").innerHTML.trim();
 
   var quiz = new PaktQuiz(quizData);
-  var elem = document.createElement("ol");
-
-  elem.innerHTML = quiz.render();
-  document.body.appendChild(elem);
+  document.body.appendChild(quiz.render());
 };

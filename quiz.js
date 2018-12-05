@@ -51,6 +51,7 @@ PaktQuiz.escapeHTML = function(line) {
 PaktQuiz.prototype.render = function(){
   var quiz = this;
   this.elem = document.createElement("ol");
+  this.elem.id = "pakt_quiz";
 
   var i;
   for (i=0;i<this.questions.length;i++){
@@ -133,7 +134,7 @@ PaktQuiz.Question.prototype.render = function(){
 
 PaktQuiz.Question.prototype.renderPrompt = function(){
   var s = document.createElement("strong");
-  s.innerHTML = this.text;
+  s.innerHTML = (this.number + 1) + ". " + this.text;
 
   return s;
 }
@@ -206,8 +207,8 @@ PaktQuiz.Choice.prototype.render = function(){
   this.element = document.createElement("p");
   this.input   = this.renderInput();
 
-  this.element.appendChild(this.renderLabel());
   this.element.appendChild(this.input);
+  this.element.appendChild(this.renderLabel());
   return this.element;
 };
 

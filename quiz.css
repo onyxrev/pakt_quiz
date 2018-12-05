@@ -1,0 +1,19 @@
+#pakt_quiz{
+  padding: 1em;
+  list-style-type: none;
+}
+
+#pakt_quiz input{
+  display: none;
+}
+
+#pakt_quiz label{
+  display: block;
+  padding: 5px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+#pakt_quiz input:checked + label{
+  border-color: red;
+}

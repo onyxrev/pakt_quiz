@@ -1,62 +1,68 @@
-(function(){
-  var Quiz = function(quizData){
-    this.questions = [];
+var PaktQuiz = function(quizData){
+  this.questions = [];
 
-    var lines = quizData.split("\n");
+  var lines = quizData.split("\n"),
+      questionLines = [],
+      i,
+      line;
 
-    var questionLines = [], i, line;
-    for (i=0;i<lines.length;i++){
-      line = lines[i];
+  for (i=0;i<lines.length;i++){
+    line = lines[i].trim();
 
-      console.log(line);
-      if (
-        (Quiz.startsWithNumber(line) && questionLines.length !== 0) ||
-          i == lines.length - 1
-      ){
-        console.log("yes");
+    if (
+      (PaktQuiz.startsWithNumber(line) && // new question?
+       questionLines.length !== 0) || // not first question?
+        i == lines.length - 1         // last question?
+    ){
+      // we've discovered a whole question. initialize the question
+      this.questions.push(
+        new PaktQuiz.Question(questionLines.join("\n"))
+      );
 
-        this.questions.push(
-          new Question(questionLines.join("\n"))
-        );
-        questionLines = [];
-      } else {
-        console.log("no");
-        questionLines.push(line);
-      }
+      // start the buffer for the next question
+      questionLines = [line];
+    } else if (line == "") {
+      continue;
+    } else {
+      // not a new question, so add line to the current question
+      questionLines.push(line);
     }
-  };
+  }
+};
 
-  Quiz.startsWithNumberMatcher = new RegExp("^[0-9]*.? ");
+PaktQuiz.startsWithNumberMatcher = new RegExp("^[0-9]+\.? ");
+PaktQuiz.startsWithNumber = function(line){
+  return line.match(PaktQuiz.startsWithNumberMatcher) !== null;
+};
 
-  Quiz.startsWithNumber = function(line){
-    return line.match(Quiz.startsWithNumberMatcher) !== null;
-  };
+PaktQuiz.Question = function(questionAndChoices){
+  this.choices = [];
+  this.selection = null;
 
-  var Question = function(questionAndChoices){
-    this.choices = [];
-    this.selection = null;
+  var lines             = questionAndChoices.split("\n"),
+      numberAndQuestion = lines.shift().trim(),
+      extracted         = numberAndQuestion.match(PaktQuiz.Question.extractor);
 
-    var lines = questionAndChoices.split("\n");
-    var i, line, choice;
+  this.number = parseInt(extracted[1]);
+  this.question = extracted[2].trim();
 
-    var numberAndQuestion = lines.shift().trim();
-    var extracted = numberAndQuestion.match(Question.extractor);
+  var i, line, choice;
+  for (i=0;i<lines.length;i++){
+    line = lines[i];
+    if (line.trim() == "") continue;
+    this.choices.push(new PaktQuiz.Choice(line));
+  }
+};
 
-    this.number = parseInt(extracted[1]);
-    this.question = extracted[2].trim();
+PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
 
-    for (i=0;i<lines.length;i++){
-      line = lines[i];
-      if (line.trim() == "") continue;
-      this.choices.push(new Choice(line));
-    }
-  };
+PaktQuiz.Choice = function(textAndValue){
+  var split = textAndValue.split(":");
+  this.text = split[0];
+  this.value = parseInt(split[1].trim(), 10);
+};
 
-  Question.extractor = new RegExp("^([0-9]*).? (.*)$");
-
-  var Choice = function(textAndValue){
-    var split = textAndValue.split(":");
-    this.text = split[0];
-    this.value = parseInt(split[1].trim(), 10);
-  };
-})();
+window.onload = function(){
+  var quizData = document.getElementById("pakt_quiz").innerHTML.trim();
+  console.log(new PaktQuiz(quizData));
+};

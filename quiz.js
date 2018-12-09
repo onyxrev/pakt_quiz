@@ -16,7 +16,7 @@ var PaktQuiz = function(quizData){
     ){
       // we've discovered a whole question. initialize the question
       this.questions.push(
-        new PaktQuiz.Question(questionLines.join("\n"))
+        new PaktQuiz.Question(questionLines.join("\n"), this, this.questions.length)
       );
 
       // start the buffer for the next question
@@ -30,6 +30,8 @@ var PaktQuiz = function(quizData){
     }
   }
 };
+
+PaktQuiz.transitionTime = 500; // milliseconds
 
 PaktQuiz.startsWithNumberMatcher = new RegExp("^[0-9]+\.? ");
 PaktQuiz.startsWithNumber = function(line){
@@ -50,12 +52,12 @@ PaktQuiz.escapeHTML = function(line) {
 
 PaktQuiz.prototype.render = function(){
   var quiz = this;
-  this.elem = document.createElement("ol");
-  this.elem.id = "pakt_quiz";
+  this.element = document.createElement("ol");
+  this.element.id = "pakt_quiz";
 
   var i;
   for (i=0;i<this.questions.length;i++){
-    this.elem.appendChild(this.questions[i].render());
+    this.element.appendChild(this.questions[i].render());
   }
 
   var gradeButton = document.createElement("button");
@@ -64,9 +66,13 @@ PaktQuiz.prototype.render = function(){
     alert("Grade: " + quiz.grade());
   };
 
-  this.elem.appendChild(gradeButton);
+  this.element.appendChild(gradeButton);
 
-  return this.elem;
+  setTimeout(function(){
+    this.forwardToQuestion(0);
+  }.bind(this), 0);
+
+  return this.element;
 };
 
 PaktQuiz.prototype.grade = function(){
@@ -78,11 +84,38 @@ PaktQuiz.prototype.grade = function(){
   return grade;
 };
 
-PaktQuiz.Question = function(questionAndChoices){
-  this.choices = [];
+PaktQuiz.prototype.forwardToQuestion = function(questionIndex){
+  var currentQuestion = this.currentQuestion;
+  this.currentQuestion = questionIndex;
+
+  if (currentQuestion == 0 || !!currentQuestion) {
+    this.questions[currentQuestion].demote();
+  }
+
+  this.questions[questionIndex].promote();
+};
+
+PaktQuiz.prototype.backwardToQuestion = function(questionIndex){
+  var currentQuestion = this.currentQuestion;
+  this.currentQuestion = questionIndex;
+
+  if (currentQuestion == 0 || !!currentQuestion) {
+    this.questions[currentQuestion].demote(true);
+  }
+
+  this.questions[questionIndex].promote(true);
+};
+
+PaktQuiz.Question = function(questionAndChoices, quiz, index){
+  this.choices   = [];
+  this.quiz      = quiz;
+  this.index     = index;
   this.selection = null;
-  this.scaleMin = null;
-  this.scaleMax = null;
+  this.scaleMin  = null;
+  this.scaleMax  = null;
+
+  // TODO: make this part of the quiz text format, parse it
+  this.imageFilename = "images/illustration.jpg";
 
   var lines             = questionAndChoices.split("\n"),
       numberAndQuestion = lines.shift().trim(),
@@ -118,47 +151,99 @@ PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
 
 PaktQuiz.Question.prototype.render = function(){
   this.element = document.createElement("li");
+
+  if (this.index !== 0) {
+    this.element.appendChild(this.renderPreviousButton());
+  }
+
+  if (this.index !== this.quiz.questions.length - 1){
+    this.element.appendChild(this.renderNextButton());
+  }
+
+  this.element.style.transition = "left " + (PaktQuiz.transitionTime / 1000) + "s";
   this.element.appendChild(this.renderPrompt());
+  this.element.appendChild(this.renderImage());
+
+  var choicesContainer = document.createElement("div");
+  PaktQuiz.addClass(choicesContainer, "pakt-quiz-question-choices");
+
+  PaktQuiz.addClass(this.element, "pakt-quiz-question");
 
   switch(this.type) {
   case "multiple_choice":
-    this.element.appendChild(this.renderAsMultipleChoice());
+    PaktQuiz.addClass(this.element, "pakt-quiz-multiple-choice");
+    choicesContainer.appendChild(this.renderAsMultipleChoice());
     break;
   case "scale":
-    this.element.appendChild(this.renderAsScale());
+    PaktQuiz.addClass(this.element, "pakt-quiz-scale");
+    choicesContainer.appendChild(this.renderAsScale());
     break;
   }
 
+  this.element.appendChild(choicesContainer);
   return this.element;
 };
 
 PaktQuiz.Question.prototype.renderPrompt = function(){
-  var s = document.createElement("strong");
-  s.innerHTML = (this.number + 1) + ". " + this.text;
+  var strong = document.createElement("strong");
 
-  return s;
+  PaktQuiz.addClass(strong, "pakt-quiz-question-prompt");
+  strong.innerHTML = (this.number + 1) + ". " + this.text;
+
+  return strong;
 }
 
 PaktQuiz.Question.prototype.renderAsMultipleChoice = function(){
-  var d = document.createElement("div"), i;
+  var div = document.createElement("div"), i;
   for (i=0;i<this.choices.length;i++){
-    d.appendChild(this.choices[i].render());
+    div.appendChild(this.choices[i].render());
   }
 
-  return d;
+  return div;
 };
 
 PaktQuiz.Question.prototype.renderAsScale = function(){
-  var d = document.createElement("div"), i;
+  var div = document.createElement("div"), i;
   for (i=this.scaleMin;i<=this.scaleMax;i++){
-    d.appendChild(new PaktQuiz.Scale(i, this, i-1).render());
+    div.appendChild(new PaktQuiz.Scale(i, this, i-1).render());
   }
 
-  return d;
+  return div;
+};
+
+PaktQuiz.Question.prototype.renderImage = function(){
+  var container = document.createElement("div");
+  PaktQuiz.addClass(container, "pakt-quiz-question-image");
+  container.style.backgroundImage = "url('" + this.imageFilename + "')";
+  return container;
+};
+
+PaktQuiz.Question.prototype.renderNextButton = function(){
+  var button = document.createElement("button");
+  button.innerHTML = "Next";
+
+  button.onclick = function(){
+    PaktQuiz.addClass(this.element, "navigated");
+    this.forwardToQuestion(this.currentQuestion + 1);
+  }.bind(this.quiz);
+
+  return button;
+};
+
+PaktQuiz.Question.prototype.renderPreviousButton = function(){
+  var button = document.createElement("button");
+  button.innerHTML = "Previous";
+
+  button.onclick = function(){
+    PaktQuiz.addClass(this.element, "navigated");
+    this.backwardToQuestion(this.currentQuestion - 1);
+  }.bind(this.quiz);
+
+  return button;
 };
 
 PaktQuiz.Question.prototype.serialize = function(){
-  var inputs = this.element.getElementsByTagName('input');
+  var inputs = this.element.getElementsByTagName("input");
 
   var i;
   for (i=0;i<inputs.length;i++){
@@ -168,6 +253,38 @@ PaktQuiz.Question.prototype.serialize = function(){
   return 0;
 };
 
+PaktQuiz.Question.prototype.demote = function(isReversed){
+  var quizWidth = this.quiz.element.offsetWidth;
+
+  PaktQuiz.removeClass(this.element, "pakt-quiz-promoted");
+  PaktQuiz.addClass(this.element, "pakt-quiz-demoting");
+
+  var left = quizWidth + "px";
+  if (!isReversed) left = "-" + left;
+  this.element.style.left = left;
+
+  setTimeout(function(){
+    PaktQuiz.removeClass(this.element, "pakt-quiz-demoting");
+  }.bind(this), PaktQuiz.transitionTime);
+};
+
+PaktQuiz.Question.prototype.promote = function(isReversed){
+  var quizWidth = this.quiz.element.offsetWidth;
+
+  PaktQuiz.addClass(this.element, "pakt-quiz-promoting");
+  PaktQuiz.removeClass(this.element, "pakt-quiz-demoted");
+
+  var left = quizWidth + "px";
+  if (isReversed) left = "-" + left;
+  this.element.style.left = left;
+
+  setTimeout(function(){
+    PaktQuiz.removeClass(this.element, "pakt-quiz-promoting");
+    PaktQuiz.addClass(this.element, "pakt-quiz-promoted");
+    this.element.style.left = "0";
+  }.bind(this), 0);
+};
+
 PaktQuiz.Choice = function(textAndValue, question, number){
   this.question = question;
   this.number   = number;
@@ -175,6 +292,31 @@ PaktQuiz.Choice = function(textAndValue, question, number){
   var split = textAndValue.split(":");
   this.text = split[0];
   this.value = parseInt(split[1].trim(), 10);
+};
+
+PaktQuiz.hasClass = function(el, className) {
+  if (el.classList){
+    return el.classList.contains(className);
+  } else {
+    return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'));
+  }
+};
+
+PaktQuiz.addClass = function(el, className) {
+  if (el.classList) {
+    el.classList.add(className);
+  } else if (!hasClass(el, className)) {
+    el.className += " " + className;
+  }
+};
+
+PaktQuiz.removeClass = function(el, className) {
+  if (el.classList) {
+    el.classList.remove(className);
+  } else if (hasClass(el, className)) {
+    var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+    el.className=el.className.replace(reg, ' ');
+  }
 };
 
 PaktQuiz.Choice.prototype.id = function(){

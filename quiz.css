@@ -1,6 +1,13 @@
 #pakt_quiz{
   padding: 1em;
   list-style-type: none;
+  display: block;
+  position: absolute;
+  overflow: hidden;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }
 
 #pakt_quiz input{
@@ -9,11 +16,49 @@
 
 #pakt_quiz label{
   display: block;
-  padding: 5px;
+  padding: 10px;
   cursor: pointer;
   border: 1px solid transparent;
 }
 
 #pakt_quiz input:checked + label{
   border-color: red;
+}
+
+#pakt_quiz .pakt-quiz-question{
+  background-color: white;
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 9999px;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+/*  transition: left .5s;*/
+}
+
+#pakt_quiz .pakt-quiz-question:nth-child(odd){
+/*  background-color: yellow;*/
+}
+
+#pakt_quiz .pakt-quiz-question .pakt-quiz-question-choices{
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: 60%;
+  padding: 30px;
+}
+
+#pakt_quiz .pakt-quiz-question .pakt-quiz-question-image{
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  top: 30%;
+  bottom: 0;
+  left: 0;
+  right: 60%;
 }

@@ -62,3 +62,10 @@
   left: 0;
   right: 60%;
 }
+
+#pakt_quiz .pakt-quiz-grade-button{
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 3;
+}

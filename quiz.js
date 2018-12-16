@@ -1,4 +1,4 @@
-var PaktQuiz = function(quizData){
+var PaktQuiz = function(quizData, quizResultsData){
   this.questions = [];
 
   var lines = quizData.split("\n"),
@@ -29,6 +29,8 @@ var PaktQuiz = function(quizData){
       questionLines.push(line);
     }
   }
+
+  this.results = new PaktQuiz.Results(quizResultsData);
 };
 
 PaktQuiz.transitionTime = 500; // milliseconds
@@ -47,7 +49,9 @@ PaktQuiz.escapeHTML = function(line) {
     replace(/</g, "&lt;").
     replace(/>/g, "&gt;").
     replace(/"/g, "&quot;").
-    replace(/'/g, "&#039;");
+    replace(/'/g, "&#039;").
+    replace(/…/g, "...").
+    replace(/&amp;#039;/g, "'");
 };
 
 PaktQuiz.prototype.render = function(){
@@ -62,6 +66,7 @@ PaktQuiz.prototype.render = function(){
 
   var gradeButton = document.createElement("button");
   gradeButton.innerHTML = "Grade";
+  gradeButton.className = "pakt-quiz-grade-button";
   gradeButton.onclick = function(){
     alert("Grade: " + quiz.grade());
   };
@@ -76,12 +81,13 @@ PaktQuiz.prototype.render = function(){
 };
 
 PaktQuiz.prototype.grade = function(){
-  var i, grade = 0;
+  var i, points = 0;
   for (i=0;i<this.questions.length;i++){
-    grade += this.questions[i].serialize();
+    points += this.questions[i].serialize();
   }
 
-  return grade;
+  var grade = this.results.findLevel(points);
+  return grade.title;
 };
 
 PaktQuiz.prototype.forwardToQuestion = function(questionIndex){
@@ -114,15 +120,18 @@ PaktQuiz.Question = function(questionAndChoices, quiz, index){
   this.scaleMin  = null;
   this.scaleMax  = null;
 
-  // TODO: make this part of the quiz text format, parse it
-  this.imageFilename = "images/illustration.jpg";
-
   var lines             = questionAndChoices.split("\n"),
       numberAndQuestion = lines.shift().trim(),
       extracted         = numberAndQuestion.match(PaktQuiz.Question.extractor);
 
   this.number = parseInt(extracted[1]) - 1;
   this.text = extracted[2].trim();
+
+  var textAndImage = this.text.match(PaktQuiz.Question.imageFilenameExtractor);
+  if (textAndImage){
+    this.text = textAndImage[1];
+    this.imageFilename = textAndImage[2];
+  }
 
   this.detectType();
 
@@ -148,6 +157,7 @@ PaktQuiz.Question.prototype.detectType = function(){
 };
 
 PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
+PaktQuiz.Question.imageFilenameExtractor = new RegExp("(.*) Image: ?(.*)$");
 
 PaktQuiz.Question.prototype.render = function(){
   this.element = document.createElement("li");
@@ -214,7 +224,11 @@ PaktQuiz.Question.prototype.renderAsScale = function(){
 PaktQuiz.Question.prototype.renderImage = function(){
   var container = document.createElement("div");
   PaktQuiz.addClass(container, "pakt-quiz-question-image");
-  container.style.backgroundImage = "url('" + this.imageFilename + "')";
+
+  if (this.imageFilename){
+    container.style.backgroundImage = "url('" + this.imageFilename + "')";
+  }
+
   return container;
 };
 
@@ -368,9 +382,94 @@ PaktQuiz.Scale.prototype.renderInput = PaktQuiz.Choice.prototype.renderInput;
 PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
 PaktQuiz.Scale.prototype.serialize = PaktQuiz.Choice.prototype.serialize;
 
+PaktQuiz.Results = function(resultsData){
+  this.levels = [];
+
+  var lines = resultsData.split("\n"),
+      levelLines = [],
+      i,
+      line,
+      levels;
+
+  for (i=0;i<lines.length;i++){
+    line = PaktQuiz.escapeHTML(lines[i]);
+
+    if (
+      (PaktQuiz.Results.startsWithLevel(line) && // new level?
+       levelLines.length !== 0) ||               // not first level?
+        i == lines.length - 1                    // last level?
+    ){
+      // we've discovered levels. initialize the levels
+      levels = PaktQuiz.Results.levelLinesToLevels(levelLines.join("\n"));
+      this.levels = this.levels.concat(levels);
+
+      // start the buffer for the next level
+      levelLines = [line];
+    } else if (line == "") {
+      // empty line
+      continue;
+    } else {
+      // not a new question, so add line to the current level
+      levelLines.push(line);
+    }
+  }
+};
+
+PaktQuiz.Results.prototype.findLevel = function(points){
+  var i;
+  for (i=0;i<this.levels.length;i++){
+    if (this.levels[i].doesMatch(points)) return this.levels[i];
+  }
+
+  return null;
+};
+
+PaktQuiz.Results.startsWithLevelDetector = new RegExp("Level (.*):");
+PaktQuiz.Results.startsWithLevel = function(line){
+  var levelsResults = line.match(PaktQuiz.Results.startsWithLevelDetector);
+  return !!levelsResults;
+};
+
+PaktQuiz.Results.extractor = new RegExp("Level(.*):(.*) +\\(([0-9\-\, ]*)\\)");
+PaktQuiz.Results.levelLinesToLevels = function(levelLines){
+  levelLines = PaktQuiz.escapeHTML(levelLines);
+
+  var lines          = levelLines.split("\n");
+  var titleAndLevels = lines.shift();
+  var extracted      = titleAndLevels.match(PaktQuiz.Results.extractor);
+  var levels         = extracted[1].split("-");
+  var title          = extracted[2];
+  var ranges         = extracted[3].split(",");
+
+  var out = [], i;
+  for (i=0;i<levels.length;i++){
+    out.push(
+      new PaktQuiz.Results.Level(levels[i], ranges[i], title, lines.join("\n"))
+    );
+  }
+
+  return out;
+};
+
+PaktQuiz.Results.Level = function(level, rangeText, title, description){
+  var range        = rangeText.split("-");
+  this.level       = parseInt(level.trim(), 10);
+  this.low         = parseInt(range[0].trim(), 10);
+  this.high        = parseInt(range[1].trim(), 10);
+  this.title       = title.trim();
+  this.description = description.trim();
+};
+
+PaktQuiz.Results.Level.prototype.doesMatch = function(points){
+  if (points < this.low)  return false;
+  if (points > this.high) return false;
+  return true;
+};
+
 window.onload = function(){
   var quizData = document.getElementById("pakt_quiz").innerHTML.trim();
+  var quizResultsData = document.getElementById("pakt_quiz_results").innerHTML.trim();
 
-  var quiz = new PaktQuiz(quizData);
+  var quiz = new PaktQuiz(quizData, quizResultsData);
   document.body.appendChild(quiz.render());
 };

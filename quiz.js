@@ -112,6 +112,96 @@ PaktQuiz.prototype.backwardToQuestion = function(questionIndex){
   this.questions[questionIndex].promote(true);
 };
 
+PaktQuiz.base62Digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+PaktQuiz.toBase62 = function(n) {
+  if (n === 0) {
+    return '0';
+  }
+
+  var result = '';
+  while (n > 0) {
+    result = PaktQuiz.base62Digits[n % PaktQuiz.base62Digits.length] + result;
+    n = parseInt(n / PaktQuiz.base62Digits.length, 10);
+  }
+
+  return result;
+};
+
+PaktQuiz.fromBase62 = function(s) {
+  var result = 0;
+  for (var i=0 ; i<s.length ; i++) {
+    var p = PaktQuiz.base62Digits.indexOf(s[i]);
+    if (p < 0) {
+      return NaN;
+    }
+    result += p * Math.pow(PaktQuiz.base62Digits.length, s.length - i - 1);
+  }
+  return result;
+};
+
+PaktQuiz.chunkArray = function(arr, chunkSize) {
+  var R = [];
+  for (var i=0; i<arr.length; i+=chunkSize)
+    R.push(arr.slice(i,i+chunkSize));
+  return R;
+};
+
+PaktQuiz.encodeResults = function(resultsSet) {
+  // reduce each result by 1 so that we can encode 10 in one digit
+  var setLessOne = [];
+  for (var i=0;i<resultsSet.length;i++){
+    setLessOne.push(resultsSet[i] - 1);
+  }
+
+  // we are going to encode sets of results as large
+  // numbers. javascript doesn't handle large numbers over
+  // ~9007199254740991, which is 16 digits long. we pad the number
+  // with a 1 so that we can encode a leading zero, so that leaves us
+  // with 15 digits. we are going to encode chunks of 15 digits
+  // delimited by a '-'
+  var chunked = PaktQuiz.chunkArray(setLessOne, 15);
+
+  var out = [];
+  for (var i=0;i<chunked.length;i++){
+    out.push(
+      PaktQuiz.toBase62('1' + chunked[i].join(''))
+    );
+  }
+
+  return out.join("-");
+};
+
+PaktQuiz.decodeResults = function(codedResults) {
+  var out = [];
+
+  // our numbers are delimited by '-'
+  var split = codedResults.split("-");
+
+  var numbers = [];
+  for (var i=0;i<split.length;i++){
+    numbers.push(PaktQuiz.fromBase62(split[i]));
+  }
+
+  var stringNumbers;
+  for (var i=0;i<numbers.length;i++){
+    // remove the leading 1
+    stringNumbers = numbers[i].toString().slice(1, numbers[i].toString().length).split("");
+
+    for (var n=0;n<stringNumbers.length;n++){
+      // parse each result as an integer and add 1 to translate the
+      // 0-9 range to 1-10
+      out.push(parseInt(stringNumbers[n], 10) + 1);
+    }
+  }
+
+  return out;
+};
+
+PaktQuiz.baseUrl = "https://pakt.io/quiz";
+PaktQuiz.shareUrl = function(resultsSet){
+  return PaktQuiz.baseUrl + "?results=" + PaktQuiz.encodeResults(resultsSet);
+};
+
 PaktQuiz.Question = function(questionAndChoices, quiz, index){
   this.choices   = [];
   this.quiz      = quiz;

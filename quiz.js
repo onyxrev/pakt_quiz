@@ -187,9 +187,9 @@ PaktQuiz.decodeResults = function(codedResults) {
     // remove the leading 1
     stringNumbers = numbers[i].toString().slice(1, numbers[i].toString().length).split("");
 
+    // parse each result as an integer and add 1 to translate the
+    // 0-9 range to 1-10
     for (var n=0;n<stringNumbers.length;n++){
-      // parse each result as an integer and add 1 to translate the
-      // 0-9 range to 1-10
       out.push(parseInt(stringNumbers[n], 10) + 1);
     }
   }

@@ -286,7 +286,7 @@ PaktQuiz.Question.prototype.renderPrompt = function(){
   var strong = document.createElement("strong");
 
   PaktQuiz.addClass(strong, "pakt-quiz-question-prompt");
-  strong.innerHTML = (this.number + 1) + ". " + this.text;
+  strong.innerHTML = this.text;
 
   return strong;
 }
@@ -313,12 +313,15 @@ PaktQuiz.Question.prototype.renderAsScale = function(){
 
 PaktQuiz.Question.prototype.renderImage = function(){
   var container = document.createElement("div");
-  PaktQuiz.addClass(container, "pakt-quiz-question-image");
+  var image = document.createElement("div");
+  PaktQuiz.addClass(container, "pakt-quiz-question-image-container");
+  PaktQuiz.addClass(image, "pakt-quiz-question-image");
 
   if (this.imageFilename){
-    container.style.backgroundImage = "url('" + this.imageFilename + "')";
+    image.style.backgroundImage = "url('" + this.imageFilename + "')";
   }
 
+  container.appendChild(image);
   return container;
 };
 

@@ -221,6 +221,7 @@ PaktQuiz.Question = function(questionAndChoices, quiz, index){
   if (textAndImage){
     this.text = textAndImage[1];
     this.imageFilename = textAndImage[2];
+    this.imageName = textAndImage[2].match(PaktQuiz.Question.imageNameExtractor)[1];
   }
 
   this.detectType();
@@ -248,21 +249,20 @@ PaktQuiz.Question.prototype.detectType = function(){
 
 PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
 PaktQuiz.Question.imageFilenameExtractor = new RegExp("(.*) Image: ?(.*)$");
+PaktQuiz.Question.imageNameExtractor = new RegExp(".*/(.*).{4}$");
 
 PaktQuiz.Question.prototype.render = function(){
   this.element = document.createElement("li");
 
-  if (this.index !== 0) {
-    this.element.appendChild(this.renderPreviousButton());
-  }
+  var promptContainer = document.createElement("div");
+  PaktQuiz.addClass(promptContainer, "pakt-quiz-question-prompt-container");
+  PaktQuiz.addClass(promptContainer, "pakt-quiz-image-" + this.imageName);
 
-  if (this.index !== this.quiz.questions.length - 1){
-    this.element.appendChild(this.renderNextButton());
-  }
+  var responseContainer = document.createElement("div");
+  PaktQuiz.addClass(responseContainer, "pakt-quiz-question-response-container");
 
-  this.element.style.transition = "left " + (PaktQuiz.transitionTime / 1000) + "s";
-  this.element.appendChild(this.renderPrompt());
-  this.element.appendChild(this.renderImage());
+  promptContainer.appendChild(this.renderPrompt());
+  promptContainer.appendChild(this.renderImage());
 
   var choicesContainer = document.createElement("div");
   PaktQuiz.addClass(choicesContainer, "pakt-quiz-question-choices");
@@ -280,7 +280,19 @@ PaktQuiz.Question.prototype.render = function(){
     break;
   }
 
-  this.element.appendChild(choicesContainer);
+  if (this.index !== 0) {
+    responseContainer.appendChild(this.renderPreviousButton());
+  }
+
+  responseContainer.appendChild(choicesContainer);
+
+  if (this.index !== this.quiz.questions.length - 1){
+    responseContainer.appendChild(this.renderNextButton());
+  }
+
+  this.element.appendChild(promptContainer);
+  this.element.appendChild(responseContainer);
+
   return this.element;
 };
 
@@ -295,6 +307,7 @@ PaktQuiz.Question.prototype.renderPrompt = function(){
 
 PaktQuiz.Question.prototype.renderAsMultipleChoice = function(){
   var div = document.createElement("div"), i;
+  PaktQuiz.addClass(div, "pakt-quiz-question-type-multiple-choice");
   for (i=0;i<this.choices.length;i++){
     div.appendChild(this.choices[i].render());
   }
@@ -304,6 +317,7 @@ PaktQuiz.Question.prototype.renderAsMultipleChoice = function(){
 
 PaktQuiz.Question.prototype.renderAsScale = function(){
   var div = document.createElement("div"), i;
+  PaktQuiz.addClass(div, "pakt-quiz-question-type-scale");
   for (i=this.scaleMin;i<=this.scaleMax;i++){
     div.appendChild(new PaktQuiz.Scale(i, this, i-1).render());
   }
@@ -323,24 +337,28 @@ PaktQuiz.Question.prototype.renderImage = function(){
 };
 
 PaktQuiz.Question.prototype.renderNextButton = function(){
-  var button = document.createElement("button");
+  var question = this;
+  var button = document.createElement("div");
   button.innerHTML = "Next";
+  PaktQuiz.addClass(button, "pakt-quiz-button-next");
 
   button.onclick = function(){
     PaktQuiz.addClass(this.element, "navigated");
-    this.forwardToQuestion(this.currentQuestion + 1);
+    this.forwardToQuestion(question.index + 1);
   }.bind(this.quiz);
 
   return button;
 };
 
 PaktQuiz.Question.prototype.renderPreviousButton = function(){
-  var button = document.createElement("button");
+  var question = this;
+  var button = document.createElement("div");
   button.innerHTML = "Previous";
+  PaktQuiz.addClass(button, "pakt-quiz-button-previous");
 
   button.onclick = function(){
     PaktQuiz.addClass(this.element, "navigated");
-    this.backwardToQuestion(this.currentQuestion - 1);
+    this.backwardToQuestion(question.index - 1);
   }.bind(this.quiz);
 
   return button;
@@ -363,10 +381,6 @@ PaktQuiz.Question.prototype.demote = function(isReversed){
   PaktQuiz.removeClass(this.element, "pakt-quiz-promoted");
   PaktQuiz.addClass(this.element, "pakt-quiz-demoting");
 
-  var left = quizWidth + "px";
-  if (!isReversed) left = "-" + left;
-  this.element.style.left = left;
-
   setTimeout(function(){
     PaktQuiz.removeClass(this.element, "pakt-quiz-demoting");
   }.bind(this), PaktQuiz.transitionTime);
@@ -378,15 +392,12 @@ PaktQuiz.Question.prototype.promote = function(isReversed){
   PaktQuiz.addClass(this.element, "pakt-quiz-promoting");
   PaktQuiz.removeClass(this.element, "pakt-quiz-demoted");
 
-  var left = quizWidth + "px";
-  if (isReversed) left = "-" + left;
-  this.element.style.left = left;
-
   setTimeout(function(){
     PaktQuiz.removeClass(this.element, "pakt-quiz-promoting");
     PaktQuiz.addClass(this.element, "pakt-quiz-promoted");
-    this.element.style.left = "0";
   }.bind(this), 0);
+
+  this.element.scrollIntoView({behavior: "smooth"});
 };
 
 PaktQuiz.Choice = function(textAndValue, question, number){
@@ -433,9 +444,10 @@ PaktQuiz.Choice.prototype.name = function(){
 
 PaktQuiz.Choice.prototype.renderLabel = function(){
   var l = document.createElement("label");
+  var t = document.createElement("span");
   l.htmlFor = this.id();
-  l.innerHTML = this.text;
-
+  t.innerHTML = this.text;
+  l.appendChild(t);
   return l;
 };
 
@@ -561,5 +573,6 @@ window.onload = function(){
   var quizResultsData = document.getElementById("pakt_quiz_results").innerHTML.trim();
 
   var quiz = new PaktQuiz(quizData, quizResultsData);
+  window.paktQuiz = quiz;
   document.body.appendChild(quiz.render());
 };

@@ -91,24 +91,10 @@ PaktQuiz.prototype.grade = function(){
 };
 
 PaktQuiz.prototype.forwardToQuestion = function(questionIndex){
-  var currentQuestion = this.currentQuestion;
-  this.currentQuestion = questionIndex;
-
-  if (currentQuestion == 0 || !!currentQuestion) {
-    this.questions[currentQuestion].demote();
-  }
-
   this.questions[questionIndex].promote();
 };
 
 PaktQuiz.prototype.backwardToQuestion = function(questionIndex){
-  var currentQuestion = this.currentQuestion;
-  this.currentQuestion = questionIndex;
-
-  if (currentQuestion == 0 || !!currentQuestion) {
-    this.questions[currentQuestion].demote(true);
-  }
-
   this.questions[questionIndex].promote(true);
 };
 
@@ -375,28 +361,7 @@ PaktQuiz.Question.prototype.serialize = function(){
   return 0;
 };
 
-PaktQuiz.Question.prototype.demote = function(isReversed){
-  var quizWidth = this.quiz.element.offsetWidth;
-
-  PaktQuiz.removeClass(this.element, "pakt-quiz-promoted");
-  PaktQuiz.addClass(this.element, "pakt-quiz-demoting");
-
-  setTimeout(function(){
-    PaktQuiz.removeClass(this.element, "pakt-quiz-demoting");
-  }.bind(this), PaktQuiz.transitionTime);
-};
-
 PaktQuiz.Question.prototype.promote = function(isReversed){
-  var quizWidth = this.quiz.element.offsetWidth;
-
-  PaktQuiz.addClass(this.element, "pakt-quiz-promoting");
-  PaktQuiz.removeClass(this.element, "pakt-quiz-demoted");
-
-  setTimeout(function(){
-    PaktQuiz.removeClass(this.element, "pakt-quiz-promoting");
-    PaktQuiz.addClass(this.element, "pakt-quiz-promoted");
-  }.bind(this), 0);
-
   this.element.scrollIntoView({behavior: "smooth"});
 };
 

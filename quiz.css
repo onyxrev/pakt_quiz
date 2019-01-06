@@ -187,3 +187,24 @@
   font-size: 1.8vw;
   color: #4DABB2;
 }
+
+#pakt_quiz .pakt-quiz-social-links{
+  text-align: center;
+}
+
+#pakt_quiz .pakt-quiz-social-links .pakt-quiz-facebook-share,
+#pakt_quiz .pakt-quiz-social-links .pakt-quiz-twitter-share{
+  display: inline-block;
+  height: 3vw;
+  width: 3vw;
+  background-size: cover;
+  text-indent: -100000px;
+}
+
+#pakt_quiz .pakt-quiz-social-links .pakt-quiz-facebook-share{
+  background: url(images/facebook.svg) center center no-repeat;
+}
+
+#pakt_quiz .pakt-quiz-social-links .pakt-quiz-twitter-share{
+  background: url(images/twitter.svg) center center no-repeat;
+}

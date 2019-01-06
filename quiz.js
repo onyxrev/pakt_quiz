@@ -14,6 +14,8 @@ var PaktQuiz = function(quizData, quizResultsData){
        questionLines.length !== 0) || // not first question?
         i == lines.length - 1         // last question?
     ){
+      if (i == lines.length - 1) questionLines.push(line); // last question
+
       // we've discovered a whole question. initialize the question
       this.questions.push(
         new PaktQuiz.Question(questionLines.join("\n"), this, this.questions.length)
@@ -76,14 +78,16 @@ PaktQuiz.prototype.render = function(){
 };
 
 PaktQuiz.prototype.grade = function(){
-  var i, points = 0;
+  var i, points = 0, resultsSet = [], result;
   for (i=0;i<this.questions.length;i++){
-    points += this.questions[i].serialize();
+    result = this.questions[i].serialize();
+    points += this.questions[i].serialize(result);
+    resultsSet.push(result);
   }
 
   var level = this.results.findLevel(points);
   this.resultsContainer.innerHTML = ""; // empty it
-  this.resultsContainer.appendChild(level.render());
+  this.resultsContainer.appendChild(level.render(resultsSet));
 
   setTimeout(function(){
     this.resultsContainer.scrollIntoView({behavior: "smooth"});
@@ -133,28 +137,7 @@ PaktQuiz.chunkArray = function(arr, chunkSize) {
 };
 
 PaktQuiz.encodeResults = function(resultsSet) {
-  // reduce each result by 1 so that we can encode 10 in one digit
-  var setLessOne = [];
-  for (var i=0;i<resultsSet.length;i++){
-    setLessOne.push(resultsSet[i] - 1);
-  }
-
-  // we are going to encode sets of results as large
-  // numbers. javascript doesn't handle large numbers over
-  // ~9007199254740991, which is 16 digits long. we pad the number
-  // with a 1 so that we can encode a leading zero, so that leaves us
-  // with 15 digits. we are going to encode chunks of 15 digits
-  // delimited by a '-'
-  var chunked = PaktQuiz.chunkArray(setLessOne, 15);
-
-  var out = [];
-  for (var i=0;i<chunked.length;i++){
-    out.push(
-      PaktQuiz.toBase62('1' + chunked[i].join(''))
-    );
-  }
-
-  return out.join("-");
+  return resultsSet.join(",");
 };
 
 PaktQuiz.decodeResults = function(codedResults) {
@@ -482,6 +465,8 @@ PaktQuiz.Results = function(resultsData){
        levelLines.length !== 0) ||               // not first level?
         i == lines.length - 1                    // last level?
     ){
+      if (i == lines.length - 1) levelLines.push(line); // last level
+
       // we've discovered levels. initialize the levels
       levels = PaktQuiz.Results.levelLinesToLevels(levelLines.join("\n"));
       this.levels = this.levels.concat(levels);
@@ -545,10 +530,17 @@ PaktQuiz.Results.Level = function(level, rangeText, title, description, imageUrl
   this.imageUrl    = imageUrl;
 };
 
-PaktQuiz.Results.Level.prototype.render = function(){
+PaktQuiz.Results.Level.prototype.render = function(resultsSet){
   this.element = document.createElement("div");
   PaktQuiz.addClass(this.element, "pakt-quiz-result");
 
+  this.element.appendChild(this.renderBadgeContainer());
+  this.element.appendChild(this.renderDescriptionContainer(resultsSet));
+
+  return this.element;
+};
+
+PaktQuiz.Results.Level.prototype.renderBadgeContainer = function() {
   var badgeContainer = document.createElement("div");
   PaktQuiz.addClass(badgeContainer, "pakt-quiz-results-badge-container");
 
@@ -557,6 +549,10 @@ PaktQuiz.Results.Level.prototype.render = function(){
   PaktQuiz.addClass(badgeImage, "pakt-quiz-results-badge-image");
   badgeContainer.appendChild(badgeImage);
 
+  return badgeContainer;
+};
+
+PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSet) {
   var descriptionContainer = document.createElement("div");
   PaktQuiz.addClass(descriptionContainer, "pakt-quiz-results-description-container");
 
@@ -578,15 +574,41 @@ PaktQuiz.Results.Level.prototype.render = function(){
   PaktQuiz.addClass(descriptionText, "pakt-quiz-results-description");
   descriptionContainer.appendChild(descriptionText);
 
+  descriptionContainer.appendChild(this.renderSharingTools(resultsSet));
+
+  return descriptionContainer;
+};
+
+PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
+  var shareUrl = PaktQuiz.shareUrl(resultsSet);
+
+  var sharingTools = document.createElement("div");
+  PaktQuiz.addClass(sharingTools, "pakt-quiz-results-sharing-tools");
+
   var shareText = document.createElement("h4");
   PaktQuiz.addClass(shareText, "pakt-quiz-results-share-title");
   shareText.innerHTML = "Share your results!";
-  descriptionContainer.appendChild(shareText);
+  sharingTools.appendChild(shareText);
 
-  this.element.appendChild(badgeContainer);
-  this.element.appendChild(descriptionContainer);
+  var socialLinks = document.createElement("div");
+  PaktQuiz.addClass(socialLinks, "pakt-quiz-social-links");
 
-  return this.element;
+  var facebookLink = document.createElement("a");
+  facebookLink.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl);
+  facebookLink.target = "_blank";
+  facebookLink.innerHTML = "Facebook";
+  PaktQuiz.addClass(facebookLink, "pakt-quiz-facebook-share");
+  socialLinks.appendChild(facebookLink);
+
+  var twitterLink = document.createElement("a");
+  twitterLink.href = "http://twitter.com/share?text=" + encodeURIComponent("My Pakt Coffee Quiz results!") + "&url=" + encodeURIComponent(shareUrl);
+  twitterLink.target = "_blank";
+  twitterLink.innerHTML = "Twitter";
+  PaktQuiz.addClass(twitterLink, "pakt-quiz-twitter-share");
+  socialLinks.appendChild(twitterLink);
+
+  sharingTools.appendChild(socialLinks);
+  return sharingTools;
 };
 
 PaktQuiz.Results.Level.prototype.doesMatch = function(points){

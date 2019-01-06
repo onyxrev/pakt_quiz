@@ -31,8 +31,6 @@ var PaktQuiz = function(quizData, quizResultsData){
       questionLines.push(line);
     }
   }
-
-  this.results = new PaktQuiz.Results(quizResultsData);
 };
 
 PaktQuiz.transitionTime = 500; // milliseconds
@@ -54,6 +52,22 @@ PaktQuiz.escapeHTML = function(line) {
     replace(/'/g, "&#039;").
     replace(/…/g, "...").
     replace(/&amp;#039;/g, "'");
+};
+
+PaktQuiz.getQueryStrings = function () {
+  var assoc  = {};
+  var decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); };
+  var queryString = location.search.substring(1);
+  var keyValues = queryString.split('&');
+
+  for(var i in keyValues) {
+    var key = keyValues[i].split('=');
+    if (key.length > 1) {
+      assoc[decode(key[0])] = decode(key[1]);
+    }
+  }
+
+  return assoc;
 };
 
 PaktQuiz.prototype.render = function(){
@@ -102,68 +116,13 @@ PaktQuiz.prototype.backwardToQuestion = function(questionIndex){
   this.questions[questionIndex].promote(true);
 };
 
-PaktQuiz.base62Digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-PaktQuiz.toBase62 = function(n) {
-  if (n === 0) {
-    return '0';
-  }
-
-  var result = '';
-  while (n > 0) {
-    result = PaktQuiz.base62Digits[n % PaktQuiz.base62Digits.length] + result;
-    n = parseInt(n / PaktQuiz.base62Digits.length, 10);
-  }
-
-  return result;
-};
-
-PaktQuiz.fromBase62 = function(s) {
-  var result = 0;
-  for (var i=0 ; i<s.length ; i++) {
-    var p = PaktQuiz.base62Digits.indexOf(s[i]);
-    if (p < 0) {
-      return NaN;
-    }
-    result += p * Math.pow(PaktQuiz.base62Digits.length, s.length - i - 1);
-  }
-  return result;
-};
-
-PaktQuiz.chunkArray = function(arr, chunkSize) {
-  var R = [];
-  for (var i=0; i<arr.length; i+=chunkSize)
-    R.push(arr.slice(i,i+chunkSize));
-  return R;
-};
 
 PaktQuiz.encodeResults = function(resultsSet) {
   return resultsSet.join(",");
 };
 
 PaktQuiz.decodeResults = function(codedResults) {
-  var out = [];
-
-  // our numbers are delimited by '-'
-  var split = codedResults.split("-");
-
-  var numbers = [];
-  for (var i=0;i<split.length;i++){
-    numbers.push(PaktQuiz.fromBase62(split[i]));
-  }
-
-  var stringNumbers;
-  for (var i=0;i<numbers.length;i++){
-    // remove the leading 1
-    stringNumbers = numbers[i].toString().slice(1, numbers[i].toString().length).split("");
-
-    // parse each result as an integer and add 1 to translate the
-    // 0-9 range to 1-10
-    for (var n=0;n<stringNumbers.length;n++){
-      out.push(parseInt(stringNumbers[n], 10) + 1);
-    }
-  }
-
-  return out;
+  return codedResults.split(",");
 };
 
 PaktQuiz.baseUrl = "https://pakt.io/quiz";
@@ -202,6 +161,20 @@ PaktQuiz.Question = function(questionAndChoices, quiz, index){
     this.choices.push(new PaktQuiz.Choice(line, this, i));
   }
 };
+
+PaktQuiz.prototype.populateResults = function(resultsSet) {
+  var question, input;
+
+  for (var i=0;i<resultsSet.length;i++){
+    question = this.questions[i];
+    if (question){
+      input = question.element.querySelectorAll("input[value=\"" + resultsSet[i] + "\"]");
+      if (input[0]) input[0].checked = true;
+    }
+  }
+
+  this.grade();
+}
 
 PaktQuiz.Question.scaleExtractor = new RegExp("a scale of ([0-9]+)\-([0-9]+)");
 PaktQuiz.Question.prototype.detectType = function(){
@@ -594,14 +567,17 @@ PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
   PaktQuiz.addClass(socialLinks, "pakt-quiz-social-links");
 
   var facebookLink = document.createElement("a");
-  facebookLink.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl);
+  facebookLink.href = "https://www.facebook.com/sharer/sharer.php?u=" +
+                      encodeURIComponent(shareUrl);
   facebookLink.target = "_blank";
   facebookLink.innerHTML = "Facebook";
   PaktQuiz.addClass(facebookLink, "pakt-quiz-facebook-share");
   socialLinks.appendChild(facebookLink);
 
   var twitterLink = document.createElement("a");
-  twitterLink.href = "http://twitter.com/share?text=" + encodeURIComponent("My Pakt Coffee Quiz results!") + "&url=" + encodeURIComponent(shareUrl);
+  twitterLink.href = "http://twitter.com/share?text=" +
+                     encodeURIComponent("My Pakt Coffee Quiz results!") +
+                     "&url=" + encodeURIComponent(shareUrl);
   twitterLink.target = "_blank";
   twitterLink.innerHTML = "Twitter";
   PaktQuiz.addClass(twitterLink, "pakt-quiz-twitter-share");
@@ -624,4 +600,11 @@ window.onload = function(){
   var quiz = new PaktQuiz(quizData, quizResultsData);
   window.paktQuiz = quiz;
   document.body.appendChild(quiz.render());
+
+  quiz.results = new PaktQuiz.Results(quizResultsData);
+
+  setTimeout(function(){
+    var pastResults = PaktQuiz.getQueryStrings()["results"];
+    if (pastResults) quiz.populateResults(PaktQuiz.decodeResults(pastResults));
+  }, 0);
 };

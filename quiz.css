@@ -9,6 +9,7 @@
   font-family: sans-serif;
   padding: 0;
   margin: 0;
+  font-size: 1.5vw
   line-height: 2vw;
 }
 
@@ -104,11 +105,12 @@
   bottom: 50%;
   left: 0;
   right: 0;
-  margin-top: -.9vw;
+  margin-top: -.5vw;
   text-align: center;
 }
 
 #pakt_quiz .pakt-quiz-button-previous,
+#pakt_quiz .pakt-quiz-button-grade,
 #pakt_quiz .pakt-quiz-button-next{
   width: 5vw;
   height: 5vw;
@@ -124,19 +126,13 @@
   background: url(images/previous_button.svg) center center no-repeat;
 }
 
-#pakt_quiz .pakt-quiz-button-next{
+#pakt_quiz .pakt-quiz-button-next,
+#pakt_quiz .pakt-quiz-button-grade{
   background: url(images/next_button.svg) center center no-repeat;
 }
 
 #pakt_quiz .pakt-quiz-question-choices{
   padding: 0 20% 0 20%;
-}
-
-#pakt_quiz .pakt-quiz-grade-button{
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 3;
 }
 
 #pakt_quiz .pakt-quiz-question-prompt-container{
@@ -151,4 +147,43 @@
 #pakt_quiz .pakt-quiz-question-prompt-container.pakt-quiz-image-cupping,
 #pakt_quiz .pakt-quiz-question-prompt-container.pakt-quiz-image-elephant{
   background-color: #A5A4A2;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-result{
+  display: flex;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-badge-container,
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
+  width: 50%;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-badge-container{
+  background-color: #F5F2EB;
+  padding: 10%;
+  display: flex;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-badge-container img{
+  width: 100%;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
+  padding: 5% 14% 0 14%;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-level-title{
+  line-height: 1.3em;
+  font-size: 2vw;
+  color: #4DABB2;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-description{
+  line-height: 1.3em;
+}
+
+#pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-share-title{
+  line-height: 1.3em;
+  font-size: 1.8vw;
+  color: #4DABB2;
 }

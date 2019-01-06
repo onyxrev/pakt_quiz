@@ -1,16 +1,9 @@
 #pakt_quiz{
   list-style-type: none;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  overflow-y: scroll;
   font-family: sans-serif;
   padding: 0;
   margin: 0;
-  font-size: 1.5vw
-  line-height: 2vw;
+  font-size: 1.5vw;
 }
 
 #pakt_quiz *{
@@ -43,10 +36,6 @@
   z-index: 1;
   display: flex;
 /*  transition: left .5s;*/
-}
-
-#pakt_quiz .pakt-quiz-question:nth-child(odd){
-/*  background-color: yellow;*/
 }
 
 #pakt_quiz .pakt-quiz-question-prompt-container,
@@ -105,7 +94,7 @@
   bottom: 50%;
   left: 0;
   right: 0;
-  margin-top: -.5vw;
+  margin-top: -.5em;
   text-align: center;
 }
 
@@ -207,4 +196,81 @@
 
 #pakt_quiz .pakt-quiz-social-links .pakt-quiz-twitter-share{
   background: url(images/twitter.svg) center center no-repeat;
+}
+
+/* mobile */
+
+@media only screen and (max-width : 1024px) {
+  #pakt_quiz .pakt-quiz-question{
+    flex-direction: column;
+    height: auto;
+  }
+
+  #pakt_quiz .pakt-quiz-question-prompt-container,
+  #pakt_quiz .pakt-quiz-question-response-container{
+    width: 100%;
+  }
+
+  #pakt_quiz .pakt-quiz-question-image-container{
+    /* min-height: 50vh;*/
+    padding: 0;
+  }
+
+  #pakt_quiz .pakt-quiz-question-image{
+    max-width: 75%;
+  }
+
+  #pakt_quiz .pakt-quiz-question-choices{
+    padding: 1vw;
+  }
+
+  #pakt_quiz label{
+    font-size: 4vw;
+  }
+
+  #pakt_quiz .pakt-quiz-button-previous, #pakt_quiz .pakt-quiz-button-next{
+    display: none;
+  }
+
+  #pakt_quiz .pakt-quiz-button-grade{
+    width: 15vw;
+    height: 15vw;
+    margin-bottom: 5vw;
+  }
+
+  #pakt_quiz .pakt-quiz-question-prompt{
+    font-size: 6vw;
+    line-height: 1.3em;
+  }
+
+  #pakt_quiz #pakt_quiz_results .pakt-quiz-result{
+    height: 100%; /* make it a good size for screenshots */
+    flex-direction: column;
+  }
+
+  #pakt_quiz #pakt_quiz_results .pakt-quiz-results-badge-container, #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
+    width: 100%;
+    height: 50%;
+  }
+
+  #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
+    padding: 0% 3%;
+  }
+
+  #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-level-title{
+    font-size: 5vw;
+  }
+
+  #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-description{
+    font-size: 2.5vw;
+  }
+
+  #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-share-title{
+    font-size: 4vw;
+  }
+
+  #pakt_quiz .pakt-quiz-social-links .pakt-quiz-facebook-share, #pakt_quiz .pakt-quiz-social-links .pakt-quiz-twitter-share{
+    width: 6vw;
+    height: 6vw;
+  }
 }

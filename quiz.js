@@ -475,8 +475,9 @@ PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
 PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
 PaktQuiz.Scale.prototype.serialize = PaktQuiz.Choice.prototype.serialize;
 
-PaktQuiz.Results = function(resultsData){
+PaktQuiz.Results = function(quiz, resultsData){
   this.levels = [];
+  this.quiz = quiz;
 
   var lines = resultsData.split("\n"),
       levelLines = [],
@@ -495,7 +496,7 @@ PaktQuiz.Results = function(resultsData){
       if (i == lines.length - 1) levelLines.push(line); // last level
 
       // we've discovered levels. initialize the levels
-      levels = PaktQuiz.Results.levelLinesToLevels(levelLines.join("\n"));
+      levels = PaktQuiz.Results.levelLinesToLevels(quiz, levelLines.join("\n"));
       this.levels = this.levels.concat(levels);
 
       // start the buffer for the next level
@@ -526,7 +527,7 @@ PaktQuiz.Results.startsWithLevel = function(line){
 };
 
 PaktQuiz.Results.extractor = new RegExp("Level(.*):(.*) +\\(([0-9\-\, ]*)\\) Image: ?(.*)$");
-PaktQuiz.Results.levelLinesToLevels = function(levelLines){
+PaktQuiz.Results.levelLinesToLevels = function(quiz, levelLines){
   levelLines = PaktQuiz.escapeHTML(levelLines);
 
   var lines          = levelLines.split("\n");
@@ -540,14 +541,14 @@ PaktQuiz.Results.levelLinesToLevels = function(levelLines){
   var out = [], i;
   for (i=0;i<levels.length;i++){
     out.push(
-      new PaktQuiz.Results.Level(levels[i], ranges[i], title, lines.join("\n"), imageUrl)
+      new PaktQuiz.Results.Level(quiz, levels[i], ranges[i], title, lines.join("\n"), imageUrl)
     );
   }
 
   return out;
 };
 
-PaktQuiz.Results.Level = function(level, rangeText, title, description, imageUrl){
+PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, imageUrl){
   var range        = rangeText.split("-");
   this.level       = parseInt(level.trim(), 10);
   this.low         = parseInt(range[0].trim(), 10);
@@ -555,6 +556,8 @@ PaktQuiz.Results.Level = function(level, rangeText, title, description, imageUrl
   this.title       = title.trim();
   this.description = description.trim();
   this.imageUrl    = imageUrl;
+  this.quiz        = quiz;
+  this.index       = quiz.questions.length;
 };
 
 PaktQuiz.Results.Level.prototype.render = function(resultsSet){
@@ -586,6 +589,8 @@ PaktQuiz.Results.Level.prototype.renderBadgeContainer = function() {
 PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSet) {
   var descriptionContainer = document.createElement("div");
   PaktQuiz.addClass(descriptionContainer, "pakt-quiz-results-description-container");
+
+  descriptionContainer.appendChild(this.renderPreviousButton());
 
   var levelContainer = document.createElement("h3");
   PaktQuiz.addClass(levelContainer, "pakt-quiz-results-level-title");
@@ -645,6 +650,8 @@ PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
   return sharingTools;
 };
 
+PaktQuiz.Results.Level.prototype.renderPreviousButton = PaktQuiz.Question.prototype.renderPreviousButton;
+
 PaktQuiz.Results.Level.prototype.doesMatch = function(points){
   if (points < this.low)  return false;
   if (points > this.high) return false;
@@ -659,7 +666,7 @@ window.onload = function(){
   window.paktQuiz = quiz;
   document.body.appendChild(quiz.render());
 
-  quiz.results = new PaktQuiz.Results(quizResultsData);
+  quiz.results = new PaktQuiz.Results(quiz, quizResultsData);
 
   setTimeout(function(){
     var pastResults = PaktQuiz.getQueryStrings()["results"];

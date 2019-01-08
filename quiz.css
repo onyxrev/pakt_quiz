@@ -4,6 +4,15 @@
   padding: 0;
   margin: 0;
   font-size: 1.5vw;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 #pakt_quiz *{
@@ -35,7 +44,9 @@
   height: 100%;
   z-index: 1;
   display: flex;
-/*  transition: left .5s;*/
+  position: absolute;
+  /*top: 9999px;*/
+  transition: top .5s;
 }
 
 #pakt_quiz .pakt-quiz-question-prompt-container,
@@ -147,8 +158,16 @@
   background-color: #A5A4A2;
 }
 
+#pakt_quiz #pakt_quiz_results{
+  position: absolute;
+  background-color: white;
+  height: 100%;
+  width: 100%;
+}
+
 #pakt_quiz #pakt_quiz_results .pakt-quiz-result{
   display: flex;
+  height: 100%;
 }
 
 #pakt_quiz #pakt_quiz_results .pakt-quiz-results-badge-container,

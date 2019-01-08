@@ -104,15 +104,30 @@ PaktQuiz.prototype.grade = function(){
   this.resultsContainer.appendChild(level.render(resultsSet));
 
   setTimeout(function(){
-    this.resultsContainer.scrollIntoView({behavior: "smooth"});
-  }.bind(this), 50);
+    this.questions[this.currentQuestion].demote(0);
+    level.element.style.top = "0";
+  }.bind(this), 0);
 };
 
 PaktQuiz.prototype.forwardToQuestion = function(questionIndex){
+  var currentQuestion = this.currentQuestion;
+  this.currentQuestion = questionIndex;
+
+  if (currentQuestion == 0 || !!currentQuestion) {
+    this.questions[currentQuestion].demote();
+  }
+
   this.questions[questionIndex].promote();
 };
 
 PaktQuiz.prototype.backwardToQuestion = function(questionIndex){
+  var currentQuestion = this.currentQuestion;
+  this.currentQuestion = questionIndex;
+
+  if (currentQuestion == 0 || !!currentQuestion) {
+    this.questions[currentQuestion].demote(true);
+  }
+
   this.questions[questionIndex].promote(true);
 };
 
@@ -194,7 +209,10 @@ PaktQuiz.Question.imageFilenameExtractor = new RegExp("(.*) Image: ?(.*)$");
 PaktQuiz.Question.imageNameExtractor = new RegExp(".*/(.*).{4}$");
 
 PaktQuiz.Question.prototype.render = function(){
+  var quizHeight = document.body.clientHeight;
   this.element = document.createElement("li");
+  this.element.style.transition = "top " + (PaktQuiz.transitionTime / 1000) + "s" + "ease 0s";
+  this.element.style.top = quizHeight + "px";
 
   var promptContainer = document.createElement("div");
   PaktQuiz.addClass(promptContainer, "pakt-quiz-question-prompt-container");
@@ -339,8 +357,36 @@ PaktQuiz.Question.prototype.serialize = function(){
   return 0;
 };
 
+PaktQuiz.Question.prototype.demote = function(isReversed){
+  var quizHeight = this.quiz.element.offsetHeight;
+
+  PaktQuiz.removeClass(this.element, "pakt-quiz-promoted");
+  PaktQuiz.addClass(this.element, "pakt-quiz-demoting");
+
+  var top = quizHeight + "px";
+  if (!isReversed) top = "-" + top;
+  this.element.style.top = top;
+
+  setTimeout(function(){
+    PaktQuiz.removeClass(this.element, "pakt-quiz-demoting");
+  }.bind(this), PaktQuiz.transitionTime);
+};
+
 PaktQuiz.Question.prototype.promote = function(isReversed){
-  this.element.scrollIntoView({behavior: "smooth"});
+  var quizHeight = this.quiz.element.offsetHeight;
+
+  PaktQuiz.addClass(this.element, "pakt-quiz-promoting");
+  PaktQuiz.removeClass(this.element, "pakt-quiz-demoted");
+
+  var top = quizHeight + "px";
+  if (isReversed) top = "-" + top;
+  this.element.style.top = top;
+
+  setTimeout(function(){
+    PaktQuiz.removeClass(this.element, "pakt-quiz-promoting");
+    PaktQuiz.addClass(this.element, "pakt-quiz-promoted");
+    this.element.style.top = "0";
+  }.bind(this), 0);
 };
 
 PaktQuiz.Choice = function(textAndValue, question, number){
@@ -512,7 +558,11 @@ PaktQuiz.Results.Level = function(level, rangeText, title, description, imageUrl
 };
 
 PaktQuiz.Results.Level.prototype.render = function(resultsSet){
+  var quizHeight = document.body.clientHeight;
   this.element = document.createElement("div");
+  this.element.style.transition = "top " + (PaktQuiz.transitionTime / 1000) + "s" + "ease 0s";
+  this.element.style.top = quizHeight + "px";
+
   PaktQuiz.addClass(this.element, "pakt-quiz-result");
 
   this.element.appendChild(this.renderBadgeContainer());

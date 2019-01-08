@@ -108,8 +108,17 @@
   cursor: pointer;
 }
 
+#pakt_quiz .pakt-quiz-button-grade,
+#pakt_quiz .pakt-quiz-button-next{
+  visibility: hidden;
+}
+
+#pakt_quiz .pakt-quiz-button-grade.pakt-quiz-visible,
+#pakt_quiz .pakt-quiz-button-next.pakt-quiz-visible{
+  visibility: visible;
+}
+
 #pakt_quiz .pakt-quiz-button-previous{
-  display: none; /* not needed */
   width: 6vw;
   height: 6vw;
   background: url(images/previous_button.svg) center center no-repeat;
@@ -226,10 +235,6 @@
 
   #pakt_quiz label{
     font-size: 4vw;
-  }
-
-  #pakt_quiz .pakt-quiz-button-previous, #pakt_quiz .pakt-quiz-button-next{
-    display: none;
   }
 
   #pakt_quiz .pakt-quiz-button-grade{

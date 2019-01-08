@@ -229,9 +229,11 @@ PaktQuiz.Question.prototype.render = function(){
   responseContainer.appendChild(choicesContainer);
 
   if (this.index !== this.quiz.questions.length - 1){
-    responseContainer.appendChild(this.renderNextButton());
+    this.nextButton = this.renderNextButton();
+    responseContainer.appendChild(this.nextButton);
   } else {
-    responseContainer.appendChild(this.renderGradeButton());
+    this.nextButton = this.renderGradeButton();
+    responseContainer.appendChild(this.nextButton);
   }
 
   this.element.appendChild(promptContainer);
@@ -253,17 +255,21 @@ PaktQuiz.Question.prototype.renderAsMultipleChoice = function(){
   var div = document.createElement("div"), i;
   PaktQuiz.addClass(div, "pakt-quiz-question-type-multiple-choice");
   for (i=0;i<this.choices.length;i++){
-    div.appendChild(this.choices[i].render());
+    div.appendChild(this.choices[i].render(this.onChange.bind(this)));
   }
 
   return div;
+};
+
+PaktQuiz.Question.prototype.onChange = function(){
+  PaktQuiz.addClass(this.nextButton, "pakt-quiz-visible");
 };
 
 PaktQuiz.Question.prototype.renderAsScale = function(){
   var div = document.createElement("div"), i;
   PaktQuiz.addClass(div, "pakt-quiz-question-type-scale");
   for (i=this.scaleMin;i<=this.scaleMax;i++){
-    div.appendChild(new PaktQuiz.Scale(i, this, i-1).render());
+    div.appendChild(new PaktQuiz.Scale(i, this, i-1).render(this.onChange.bind(this)));
   }
 
   return div;
@@ -388,19 +394,20 @@ PaktQuiz.Choice.prototype.renderLabel = function(){
   return l;
 };
 
-PaktQuiz.Choice.prototype.renderInput = function(){
+PaktQuiz.Choice.prototype.renderInput = function(onChange){
   var i = document.createElement("input");
   i.type = "radio";
   i.id = this.id();
   i.name = this.name();
   i.value = this.value;
+  i.addEventListener('change', onChange);
 
   return i;
 };
 
-PaktQuiz.Choice.prototype.render = function(){
+PaktQuiz.Choice.prototype.render = function(onChange){
   this.element = document.createElement("p");
-  this.input   = this.renderInput();
+  this.input   = this.renderInput(onChange);
 
   this.element.appendChild(this.input);
   this.element.appendChild(this.renderLabel());
@@ -418,6 +425,7 @@ PaktQuiz.Scale.prototype.id = PaktQuiz.Choice.prototype.id;
 PaktQuiz.Scale.prototype.name = PaktQuiz.Choice.prototype.name;
 PaktQuiz.Scale.prototype.renderLabel = PaktQuiz.Choice.prototype.renderLabel;
 PaktQuiz.Scale.prototype.renderInput = PaktQuiz.Choice.prototype.renderInput;
+PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
 PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
 PaktQuiz.Scale.prototype.serialize = PaktQuiz.Choice.prototype.serialize;
 

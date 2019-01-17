@@ -327,6 +327,24 @@ body{
   color: #4DABB2;
 }
 
+.pakt-quiz-container .pakt-quiz-waiting-container{
+  position: absolute;
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+}
+
+.pakt-quiz-container .pakt-quiz-waiting-image{
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+  left: 15%;
+  right: 15%;
+  background: url(images/waiting_animation.gif) center center no-repeat;
+  background-size: contain;
+}
+
 /* mobile */
 
 @media only screen and (max-width : 1024px) {

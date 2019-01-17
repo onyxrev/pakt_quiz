@@ -111,9 +111,25 @@ PaktQuiz.prototype.grade = function(){
   this.resultsContainer.appendChild(newsletter.render());
 
   setTimeout(function(){
+    this.showWaitingAnimation();
     this.questions[this.currentQuestion].demote(0);
     level.element.style.top = "0";
   }.bind(this), 0);
+};
+
+PaktQuiz.prototype.showWaitingAnimation = function(){
+  var waiting = document.createElement("div");
+  PaktQuiz.addClass(waiting, "pakt-quiz-waiting-container");
+
+  var img = document.createElement("div");
+  PaktQuiz.addClass(img, "pakt-quiz-waiting-image");
+  waiting.appendChild(img);
+
+  this.container.appendChild(waiting);
+
+  setTimeout(function(){
+    this.container.removeChild(waiting);
+  }.bind(this), 2500);
 };
 
 PaktQuiz.prototype.forwardToQuestion = function(questionIndex){

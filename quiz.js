@@ -70,8 +70,12 @@ PaktQuiz.getQueryStrings = function () {
   return assoc;
 };
 
-PaktQuiz.prototype.render = function(){
+PaktQuiz.prototype.render = function(container){
   var quiz = this;
+
+  this.container = container;
+  PaktQuiz.addClass(this.container, "pakt-quiz-container");
+
   this.element = document.createElement("ol");
   this.element.id = "pakt_quiz";
 
@@ -102,6 +106,9 @@ PaktQuiz.prototype.grade = function(){
   var level = this.results.findLevel(points);
   this.resultsContainer.innerHTML = ""; // empty it
   this.resultsContainer.appendChild(level.render(resultsSet));
+
+  var newsletter = new PaktQuiz.Newsletter();
+  this.resultsContainer.appendChild(newsletter.render());
 
   setTimeout(function(){
     this.questions[this.currentQuestion].demote(0);
@@ -643,6 +650,7 @@ PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSe
 };
 
 PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
+  var message = "My Pakt Coffee Quiz results!";
   var shareUrl = PaktQuiz.shareUrl(resultsSet);
 
   var sharingTools = document.createElement("div");
@@ -666,12 +674,24 @@ PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
 
   var twitterLink = document.createElement("a");
   twitterLink.href = "http://twitter.com/share?text=" +
-                     encodeURIComponent("My Pakt Coffee Quiz results!") +
+                     encodeURIComponent(message) +
                      "&url=" + encodeURIComponent(shareUrl);
   twitterLink.target = "_blank";
   twitterLink.innerHTML = "Twitter";
   PaktQuiz.addClass(twitterLink, "pakt-quiz-twitter-share");
   socialLinks.appendChild(twitterLink);
+
+  var textLink = document.createElement("a");
+  textLink.innerHTML = "Text";
+  textLink.href = "sms:1234567890;?&body=" + encodeURIComponent(message + " " + shareUrl);
+  PaktQuiz.addClass(textLink, "pakt-quiz-text-share");
+  socialLinks.appendChild(textLink);
+
+  var emailLink = document.createElement("a");
+  emailLink.innerHTML = "Email";
+  emailLink.href = "mailto:?&subject=" + encodeURIComponent(message) + "&body=" + encodeURIComponent(shareUrl);
+  PaktQuiz.addClass(emailLink, "pakt-quiz-email-share");
+  socialLinks.appendChild(emailLink);
 
   sharingTools.appendChild(socialLinks);
   return sharingTools;
@@ -685,13 +705,153 @@ PaktQuiz.Results.Level.prototype.doesMatch = function(points){
   return true;
 };
 
-window.onload = function(){
+PaktQuiz.Newsletter = function(){};
+
+PaktQuiz.Newsletter.prototype.render = function() {
+  var container = document.createElement("div");
+  PaktQuiz.addClass(container, "pakt-quiz-newsletter");
+
+  var form = document.createElement("form");
+  form.action = "https://paktbags.us16.list-manage.com/subscribe/post?u=770d11d146c2a97addebf43f7&amp;id=61ae83d325";
+  form.method = "post";
+  form.id = "mc-embedded-subscribe-form";
+  form.name = "mc-embedded-subscribe-form";
+  form.target = "_blank";
+  form.novalidate = "novalidate";
+  PaktQuiz.addClass(form, "validate");
+
+  form.appendChild(this.renderBlurb());
+  form.appendChild(this.renderEmail());
+  form.appendChild(this.renderSubmitButton());
+  form.appendChild(this.renderResultsArea());
+  container.appendChild(form);
+
+  setTimeout(function(){
+    this.initialize();
+  }.bind(this), 1);
+
+  return container;
+};
+
+PaktQuiz.Newsletter.prototype.initialize = function() {
+  if (PaktQuiz.Newsletter.initialized) return;
+
+  document.head.appendChild(this.renderMailchimpScriptTag());
+//  document.head.appendChild(this.renderMailchimpLinkTag());
+
+  (function($) {
+    window.fnames = new Array();
+    window.ftypes = new Array();
+    window.fnames[0]='EMAIL';
+    window.ftypes[0]='email';
+  }(window.jQuery));
+
+  PaktQuiz.Newsletter.initialized = true;
+};
+
+PaktQuiz.Newsletter.prototype.renderEmail = function() {
+  var container = document.createElement("div");
+  PaktQuiz.addClass(container, "mc-field-group");
+
+  var input = document.createElement("input");
+  input.type = "email";
+  input.name = "EMAIL";
+  input.placeholder = "ENTER EMAIL";
+  input.id = "mce-EMAIL";
+  input.value = "";
+  PaktQuiz.addClass(input, "email");
+  container.appendChild(input);
+
+  return container;
+};
+
+PaktQuiz.Newsletter.prototype.renderSubmitButton = function() {
+  var button = document.createElement("input");
+  button.type = "submit";
+  button.name = "subscribe";
+  button.id = "mc-embedded-subscribe";
+  button.value = "GET UPDATES";
+  PaktQuiz.addClass(button, "button");
+
+  return button;
+};
+
+PaktQuiz.Newsletter.prototype.renderBotTrap = function() {
+  var container = document.createElement("div");
+  container.style = "position: absolute; left: -5000px;";
+  container["aria-hidden"] = true;
+
+  var input = document.createElement("input");
+  input.type = "text";
+  input.name = "b_770d11d146c2a97addebf43f7_61ae83d325";
+  input.tabindex = -1;
+  input.value = "";
+  container.appendChild(input);
+
+  return input;
+};
+
+PaktQuiz.Newsletter.prototype.renderMailchimpScriptTag = function() {
+  var script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js";
+  return script;
+};
+
+PaktQuiz.Newsletter.prototype.renderMailchimpLinkTag = function() {
+  var link = document.createElement("link");
+  link.href = "https://cdn-images.mailchimp.com/embedcode/classic-10_7.css";
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  return link;
+};
+
+PaktQuiz.Newsletter.prototype.renderResultsArea = function() {
+  var container = document.createElement("div");
+  container.id = "mce-responses";
+
+  var success = document.createElement("div");
+  success.id = "mce-success-response";
+  PaktQuiz.addClass(success, "response");
+  container.appendChild(success);
+
+  var error = document.createElement("div");
+  error.id = "mce-error-response";
+  PaktQuiz.addClass(error, "response");
+  container.appendChild(error);
+
+  return container;
+};
+
+PaktQuiz.Newsletter.prototype.renderBlurb = function() {
+  var container = document.createElement("div");
+  PaktQuiz.addClass(container, "pakt-newsletter-blurb");
+
+  var logo = document.createElement("img");
+  logo.src = PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_logo").innerHTML);
+  container.appendChild(logo);
+
+  var title = document.createElement("h3");
+  title.innerHTML = PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_title").innerHTML);
+  container.appendChild(title);
+
+  var copy = document.createElement("p");
+  copy.innerHTML = PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_copy").innerHTML);
+  container.appendChild(copy);
+
+  return container;
+};
+
+document.addEventListener("DOMContentLoaded", function(){
   var quizData = document.getElementById("pakt_quiz").innerHTML.trim();
   var quizResultsData = document.getElementById("pakt_quiz_results").innerHTML.trim();
 
   var quiz = new PaktQuiz(quizData, quizResultsData);
   window.paktQuiz = quiz;
-  document.body.appendChild(quiz.render());
+
+  var container = document.getElementsByClassName("main-content")[0];
+  container.innerHTML = "";
+  container.appendChild(quiz.render(container));
 
   quiz.results = new PaktQuiz.Results(quiz, quizResultsData);
 
@@ -699,4 +859,4 @@ window.onload = function(){
     var pastResults = PaktQuiz.getQueryStrings()["results"];
     if (pastResults) quiz.populateResults(PaktQuiz.decodeResults(pastResults));
   }, 0);
-};
+});

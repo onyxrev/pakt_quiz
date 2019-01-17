@@ -36,9 +36,9 @@ body{
 }
 
 #pakt_quiz label{
-  font-size: 1.3vw;
+  font-size: 1.1vw;
   display: block;
-  padding: 10px;
+  padding: .2em .5em;
   cursor: pointer;
   border: 1.5px solid black;
   font-weight: bold;
@@ -154,6 +154,10 @@ body{
 
 #pakt_quiz .pakt-quiz-question-choices{
   padding: 0 20% 0 20%;
+}
+
+#pakt_quiz .pakt-quiz-question-choices p{
+  margin-bottom: .5em;
 }
 
 #pakt_quiz .pakt-quiz-question-prompt-container{

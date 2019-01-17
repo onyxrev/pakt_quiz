@@ -95,7 +95,7 @@ PaktQuiz.prototype.grade = function(){
   var i, points = 0, resultsSet = [], result;
   for (i=0;i<this.questions.length;i++){
     result = this.questions[i].serialize();
-    points += this.questions[i].serialize(result);
+    points += this.questions[i].serialize(result).reduce(function(a, b) { return a + b; }, 0);
     resultsSet.push(result);
   }
 
@@ -133,11 +133,21 @@ PaktQuiz.prototype.backwardToQuestion = function(questionIndex){
 
 
 PaktQuiz.encodeResults = function(resultsSet) {
-  return resultsSet.join(",");
+  var out = [];
+  for (var i=0;i<resultsSet.length;i++){
+    out.push(resultsSet[i].join(","));
+  }
+  return out.join(";");
 };
 
 PaktQuiz.decodeResults = function(codedResults) {
-  return codedResults.split(",");
+  var out = [];
+  var questions = codedResults.split(";");
+  for (var i=0;i<questions.length;i++){
+    out.push(questions[i].split(","));
+  }
+
+  return out;
 };
 
 PaktQuiz.baseUrl = "https://pakt.io/quiz";
@@ -183,8 +193,12 @@ PaktQuiz.prototype.populateResults = function(resultsSet) {
   for (var i=0;i<resultsSet.length;i++){
     question = this.questions[i];
     if (question){
-      input = question.element.querySelectorAll("input[value=\"" + resultsSet[i] + "\"]");
-      if (input[0]) input[0].checked = true;
+      for (var n=0;n<resultsSet[i].length;n++){
+        input = question.element.querySelectorAll("input[value=\"" + resultsSet[i][n] + "\"]");
+        if (input[0]) input[0].checked = true;
+      }
+
+      question.onChange();
     }
   }
 
@@ -348,13 +362,18 @@ PaktQuiz.Question.prototype.renderGradeButton = function() {
 
 PaktQuiz.Question.prototype.serialize = function(){
   var inputs = this.element.getElementsByTagName("input");
+  var values = [];
 
   var i;
   for (i=0;i<inputs.length;i++){
-    if (inputs[i].checked) return parseInt(inputs[i].value, 10);
+    if (inputs[i].checked) {
+      values.push(
+        parseInt(inputs[i].value, 10)
+      );
+    }
   }
 
-  return 0;
+  return values;
 };
 
 PaktQuiz.Question.prototype.demote = function(isReversed){
@@ -442,7 +461,15 @@ PaktQuiz.Choice.prototype.renderLabel = function(){
 
 PaktQuiz.Choice.prototype.renderInput = function(onChange){
   var i = document.createElement("input");
-  i.type = "radio";
+
+  if (this.question.text.indexOf("select more than one") !== -1){
+    // allow multiple selections
+    i.type = "checkbox";
+  } else {
+    // allow one selection
+    i.type = "radio";
+  }
+
   i.id = this.id();
   i.name = this.name();
   i.value = this.value;

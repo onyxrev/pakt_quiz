@@ -199,7 +199,7 @@ body{
 }
 
 #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
-  padding: 3% 9% 0 9%;
+  padding: 0% 9% 0 9%;
   font-size: 1.2vw;
   overflow-y: scroll;
 }

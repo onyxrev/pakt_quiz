@@ -533,7 +533,8 @@ PaktQuiz.Results = function(quiz, resultsData){
       levelLines = [],
       i,
       line,
-      levels;
+      levels,
+      isLast;
 
   for (i=0;i<lines.length;i++){
     line = PaktQuiz.escapeHTML(lines[i]);
@@ -543,10 +544,11 @@ PaktQuiz.Results = function(quiz, resultsData){
        levelLines.length !== 0) ||               // not first level?
         i == lines.length - 1                    // last level?
     ){
-      if (i == lines.length - 1) levelLines.push(line); // last level
+      isLast = i == lines.length - 1;
+      if (isLast) levelLines.push(line); // last level
 
       // we've discovered levels. initialize the levels
-      levels = PaktQuiz.Results.levelLinesToLevels(quiz, levelLines.join("\n"));
+      levels = PaktQuiz.Results.levelLinesToLevels(quiz, levelLines.join("\n"), isLast);
       this.levels = this.levels.concat(levels);
 
       // start the buffer for the next level
@@ -577,7 +579,7 @@ PaktQuiz.Results.startsWithLevel = function(line){
 };
 
 PaktQuiz.Results.extractor = new RegExp("Level(.*):(.*) +\\(([0-9\-\, ]*)\\) Image: ?(.*)$");
-PaktQuiz.Results.levelLinesToLevels = function(quiz, levelLines){
+PaktQuiz.Results.levelLinesToLevels = function(quiz, levelLines, isLast){
   levelLines = PaktQuiz.escapeHTML(levelLines);
 
   var lines          = levelLines.split("\n");
@@ -588,17 +590,19 @@ PaktQuiz.Results.levelLinesToLevels = function(quiz, levelLines){
   var ranges         = extracted[3].split(",");
   var imageUrl       = extracted[4];
 
-  var out = [], i;
+  var out = [], i, reallyLast;
   for (i=0;i<levels.length;i++){
+    reallyLast = (i == levels.length - 1) && (isLast == true);
+
     out.push(
-      new PaktQuiz.Results.Level(quiz, levels[i], ranges[i], title, lines.join("\n"), imageUrl)
+      new PaktQuiz.Results.Level(quiz, levels[i], ranges[i], title, lines.join("\n"), imageUrl, reallyLast)
     );
   }
 
   return out;
 };
 
-PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, imageUrl){
+PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, imageUrl, isLast ){
   var range        = rangeText.split("-");
   this.level       = parseInt(level.trim(), 10);
   this.low         = parseInt(range[0].trim(), 10);
@@ -608,6 +612,10 @@ PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, im
   this.imageUrl    = imageUrl;
   this.quiz        = quiz;
   this.index       = quiz.questions.length;
+
+  if (isLast){
+    this.high = 9999; // highest range has no functional upper bound
+  }
 };
 
 PaktQuiz.Results.Level.prototype.render = function(resultsSet){

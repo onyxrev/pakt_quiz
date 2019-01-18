@@ -355,9 +355,32 @@ body{
 /* mobile */
 
 @media only screen and (max-width : 1024px) {
-  #pakt_quiz .pakt-quiz-question{
-    flex-direction: column;
+  body{
+    position: static;
     height: auto;
+    overflow: scroll;
+  }
+
+  .pakt-quiz-container{
+    margin: 0;
+    position: static;
+    height: auto;
+  }
+
+  #pakt_quiz .pakt-quiz-question{
+    position: static;
+    flex-direction: column;
+  }
+
+  #pakt_quiz{
+    position: static;
+    overflow: scroll;
+    width: 100%;
+  }
+
+  #pakt_quiz .pakt-quiz-button-previous,
+  #pakt_quiz .pakt-quiz-button-next{
+    display: none;
   }
 
   #pakt_quiz .pakt-quiz-question-prompt-container,

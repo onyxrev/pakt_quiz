@@ -590,7 +590,7 @@ PaktQuiz.Results.startsWithLevel = function(line){
   return !!levelsResults;
 };
 
-PaktQuiz.Results.extractor = new RegExp("Level(.*):(.*) +\\(([0-9\-\, ]*)\\) Image: ?(.*)$");
+PaktQuiz.Results.extractor = new RegExp("Level(.*):(.*) +\\(([0-9\-\, ]*)\\)$");
 PaktQuiz.Results.levelLinesToLevels = function(quiz, levelLines, isLast){
   levelLines = PaktQuiz.escapeHTML(levelLines);
 
@@ -600,28 +600,27 @@ PaktQuiz.Results.levelLinesToLevels = function(quiz, levelLines, isLast){
   var levels         = extracted[1].split("-");
   var title          = extracted[2];
   var ranges         = extracted[3].split(",");
-  var imageUrl       = extracted[4];
 
   var out = [], i, reallyLast;
   for (i=0;i<levels.length;i++){
     reallyLast = (i == levels.length - 1) && (isLast == true);
 
     out.push(
-      new PaktQuiz.Results.Level(quiz, levels[i], ranges[i], title, lines.join("\n"), imageUrl, reallyLast)
+      new PaktQuiz.Results.Level(quiz, levels[i], ranges[i], title, lines.join("\n"), reallyLast)
     );
   }
 
   return out;
 };
 
-PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, imageUrl, isLast ){
+PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, isLast ){
   var range        = rangeText.split("-");
   this.level       = parseInt(level.trim(), 10);
   this.low         = parseInt(range[0].trim(), 10);
   this.high        = parseInt(range[1].trim(), 10);
   this.title       = title.trim();
   this.description = description.trim();
-  this.imageUrl    = imageUrl;
+  this.imageUrl    = "images/badge_level" + this.level + ".svg";
   this.quiz        = quiz;
   this.index       = quiz.questions.length;
 

@@ -343,11 +343,13 @@ body{
 }
 
 .pakt-quiz-container .pakt-quiz-waiting-container{
-  position: absolute;
+  position: fixed;
   background-color: white;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
 }
 
 .pakt-quiz-container .pakt-quiz-waiting-image{
@@ -358,6 +360,16 @@ body{
   right: 15%;
   background: url(images/waiting_animation.gif) center center no-repeat;
   background-size: contain;
+}
+
+.pakt-quiz-container .pakt-quiz-waiting-text{
+  position: absolute;
+  bottom: 0%;
+  font-family: sans-serif;
+  font-size: 2vw;
+  left: 0;
+  right: 0;
+  text-align: center;
 }
 
 /* mobile */

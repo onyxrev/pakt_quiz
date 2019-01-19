@@ -141,6 +141,7 @@ PaktQuiz.prototype.showWaitingAnimation = function(){
 
   setTimeout(function(){
     this.container.removeChild(waiting);
+    PaktQuiz.addClass(this.element, "pakt-quiz-hidden");
   }.bind(this), 2500);
 };
 

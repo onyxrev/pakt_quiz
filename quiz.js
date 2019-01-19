@@ -86,7 +86,7 @@ PaktQuiz.prototype.render = function(container){
 
   this.resultsContainer = document.createElement("div");
   this.resultsContainer.id = "pakt_quiz_results";
-  this.element.appendChild(this.resultsContainer);
+  this.container.appendChild(this.resultsContainer);
 
   setTimeout(function(){
     this.forwardToQuestion(0);
@@ -663,6 +663,7 @@ PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSe
   descriptionContainer.appendChild(this.renderPreviousButton());
 
   var estimateTitle = document.createElement("h2");
+  PaktQuiz.addClass(estimateTitle, "pakt-quiz-results-estimate-title");
   estimateTitle.innerHTML = "So, you thought you were a level " + estimate + "?";
   descriptionContainer.appendChild(estimateTitle);
 

@@ -103,9 +103,16 @@ PaktQuiz.prototype.grade = function(){
     resultsSet.push(result);
   }
 
+  var estimate;
+  for (var i=0;i<this.questions.length;i++){
+    if (this.questions[i].text.indexOf("what would you rate your level") !== -1){
+      estimate = this.questions[i].serialize()[0];
+    }
+  }
+
   var level = this.results.findLevel(points);
   this.resultsContainer.innerHTML = ""; // empty it
-  this.resultsContainer.appendChild(level.render(resultsSet));
+  this.resultsContainer.appendChild(level.render(resultsSet, estimate));
 
   var newsletter = new PaktQuiz.Newsletter();
   this.resultsContainer.appendChild(newsletter.render());
@@ -618,7 +625,7 @@ PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, im
   }
 };
 
-PaktQuiz.Results.Level.prototype.render = function(resultsSet){
+PaktQuiz.Results.Level.prototype.render = function(resultsSet, estimate){
   var quizHeight = document.body.clientHeight;
   this.element = document.createElement("div");
   this.element.style.transition = "top " + (PaktQuiz.transitionTime / 1000) + "s" + "ease 0s";
@@ -627,7 +634,7 @@ PaktQuiz.Results.Level.prototype.render = function(resultsSet){
   PaktQuiz.addClass(this.element, "pakt-quiz-result");
 
   this.element.appendChild(this.renderBadgeContainer());
-  this.element.appendChild(this.renderDescriptionContainer(resultsSet));
+  this.element.appendChild(this.renderDescriptionContainer(resultsSet, estimate));
 
   return this.element;
 };
@@ -644,23 +651,31 @@ PaktQuiz.Results.Level.prototype.renderBadgeContainer = function() {
   return badgeContainer;
 };
 
-PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSet) {
+PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSet, estimate) {
   var descriptionContainer = document.createElement("div");
   PaktQuiz.addClass(descriptionContainer, "pakt-quiz-results-description-container");
 
   descriptionContainer.appendChild(this.renderPreviousButton());
 
+  var estimateTitle = document.createElement("h2");
+  estimateTitle.innerHTML = "So, you thought you were a level " + estimate + "?";
+  descriptionContainer.appendChild(estimateTitle);
+
+  var rightOrNot = document.createElement("p");
+  if (this.level == estimate){
+    rightOrNot.innerHTML = "You were right!";
+  } else {
+    rightOrNot.innerHTML = "Well this sure is awkward...";
+  }
+
+  descriptionContainer.appendChild(rightOrNot);
+
   var levelContainer = document.createElement("h3");
   PaktQuiz.addClass(levelContainer, "pakt-quiz-results-level-title");
   var levelText = document.createElement("span");
-  levelText.innerHTML = "Level " + this.level;
-
-  var levelTitle = document.createElement("span");
-  levelTitle.innerHTML = this.title;
+  levelText.innerHTML = "Level " + this.level + ": " + this.title;
 
   levelContainer.appendChild(levelText);
-  levelContainer.appendChild(document.createElement("br"));
-  levelContainer.appendChild(levelTitle);
   descriptionContainer.appendChild(levelContainer);
 
   var descriptionText = document.createElement("p");

@@ -425,14 +425,14 @@ body{
   }
 
   #pakt_quiz #pakt_quiz_results .pakt-quiz-result{
-    height: 100%; /* make it a good size for screenshots */
+    height: auto;
     flex-direction: column;
   }
 
   #pakt_quiz #pakt_quiz_results .pakt-quiz-results-badge-container,
   #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
     width: 100%;
-    height: 50%;
+    overflow: visible;
   }
 
   #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
@@ -457,5 +457,30 @@ body{
   #pakt_quiz .pakt-quiz-social-links .pakt-quiz-email-share{
     width: 6vw;
     height: 6vw;
+  }
+
+  #pakt_quiz .pakt-quiz-newsletter{
+    height: auto;
+    line-height: 2.5vh;
+    padding-bottom: 3vh;
+    padding-left: 3vw;
+    padding-right: 3vw;
+  }
+
+  #pakt_quiz #pakt_quiz_results .pakt-quiz-results-description-container{
+    font-size: 3vw;
+  }
+
+  #pakt_quiz .pakt-quiz-newsletter input{
+    font-size: 3vw;
+  }
+
+  #pakt_quiz .pakt-quiz-newsletter .pakt-newsletter-blurb img{
+    height: auto;
+  }
+
+  #pakt_quiz .pakt-quiz-newsletter form{
+    min-width: 0;
+    width: auto;
   }
 }

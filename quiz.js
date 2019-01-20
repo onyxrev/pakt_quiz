@@ -1,7 +1,8 @@
-var PaktQuiz = function(quizData, quizResultsData){
+var PaktQuiz = function(options){
   this.questions = [];
+  this.assetBaseUrl = options.assetBaseUrl;
 
-  var lines = quizData.split("\n"),
+  var lines = options.quizCopy.split("\n"),
       questionLines = [],
       i,
       line;
@@ -130,6 +131,7 @@ PaktQuiz.prototype.showWaitingAnimation = function(){
 
   var img = document.createElement("div");
   PaktQuiz.addClass(img, "pakt-quiz-waiting-image");
+  img.style.backgroundImage = "url('" + this.assetBaseUrl + "images/waiting_animation.gif')";
   waiting.appendChild(img);
 
   var text = document.createElement("h3");
@@ -256,7 +258,7 @@ PaktQuiz.Question.prototype.detectType = function(){
 
 PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
 PaktQuiz.Question.imageFilenameExtractor = new RegExp("(.*) Image: ?(.*)$");
-PaktQuiz.Question.imageNameExtractor = new RegExp(".*/(.*).{4}$");
+PaktQuiz.Question.imageNameExtractor = new RegExp("(.*).{4}$");
 
 PaktQuiz.Question.prototype.render = function(){
   var quizHeight = document.body.clientHeight;
@@ -350,7 +352,7 @@ PaktQuiz.Question.prototype.renderImage = function(){
   PaktQuiz.addClass(image, "pakt-quiz-question-image");
 
   if (this.imageFilename){
-    image.style.backgroundImage = "url('" + this.imageFilename + "')";
+    image.style.backgroundImage = "url('" + this.quiz.assetBaseUrl + "images/" + this.imageFilename + "')";
   }
 
   container.appendChild(image);
@@ -362,6 +364,7 @@ PaktQuiz.Question.prototype.renderNextButton = function(){
   var button = document.createElement("div");
   button.innerHTML = "Next";
   PaktQuiz.addClass(button, "pakt-quiz-button-next");
+  button.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/next_button.svg)";
 
   button.onclick = function(){
     PaktQuiz.addClass(this.element, "navigated");
@@ -376,6 +379,7 @@ PaktQuiz.Question.prototype.renderPreviousButton = function(){
   var button = document.createElement("div");
   button.innerHTML = "Previous";
   PaktQuiz.addClass(button, "pakt-quiz-button-previous");
+  button.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/previous_button.svg)";
 
   button.onclick = function(){
     PaktQuiz.addClass(this.element, "navigated");
@@ -386,14 +390,15 @@ PaktQuiz.Question.prototype.renderPreviousButton = function(){
 };
 
 PaktQuiz.Question.prototype.renderGradeButton = function() {
-  var gradeButton = document.createElement("div");
-  gradeButton.innerHTML = "Grade";
-  gradeButton.className = "pakt-quiz-button-grade";
-  gradeButton.onclick = function(){
+  var button = document.createElement("div");
+  button.innerHTML = "Grade";
+  button.className = "pakt-quiz-button-grade";
+  button.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/next_button.svg)";
+  button.onclick = function(){
     this.grade();
   }.bind(this.quiz);
 
-  return gradeButton;
+  return button;
 };
 
 PaktQuiz.Question.prototype.serialize = function(){
@@ -538,11 +543,11 @@ PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
 PaktQuiz.Scale.prototype.render = PaktQuiz.Choice.prototype.render;
 PaktQuiz.Scale.prototype.serialize = PaktQuiz.Choice.prototype.serialize;
 
-PaktQuiz.Results = function(quiz, resultsData){
+PaktQuiz.Results = function(options){
   this.levels = [];
-  this.quiz = quiz;
+  this.quiz = options.quiz;
 
-  var lines = resultsData.split("\n"),
+  var lines = options.quizResultsData.split("\n"),
       levelLines = [],
       i,
       line,
@@ -561,7 +566,7 @@ PaktQuiz.Results = function(quiz, resultsData){
       if (isLast) levelLines.push(line); // last level
 
       // we've discovered levels. initialize the levels
-      levels = PaktQuiz.Results.levelLinesToLevels(quiz, levelLines.join("\n"), isLast);
+      levels = PaktQuiz.Results.levelLinesToLevels(this.quiz, levelLines.join("\n"), isLast);
       this.levels = this.levels.concat(levels);
 
       // start the buffer for the next level
@@ -621,7 +626,7 @@ PaktQuiz.Results.Level = function(quiz, level, rangeText, title, description, is
   this.high        = parseInt(range[1].trim(), 10);
   this.title       = title.trim();
   this.description = description.trim();
-  this.imageUrl    = "images/badge_level" + this.level + ".svg";
+  this.imageUrl    = quiz.assetBaseUrl + "images/badge_level" + this.level + ".svg";
   this.quiz        = quiz;
   this.index       = quiz.questions.length;
 
@@ -714,6 +719,7 @@ PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
                       encodeURIComponent(shareUrl);
   facebookLink.target = "_blank";
   facebookLink.innerHTML = "Facebook";
+  facebookLink.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/facebook.svg)";
   PaktQuiz.addClass(facebookLink, "pakt-quiz-facebook-share");
   socialLinks.appendChild(facebookLink);
 
@@ -723,18 +729,21 @@ PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
                      "&url=" + encodeURIComponent(shareUrl);
   twitterLink.target = "_blank";
   twitterLink.innerHTML = "Twitter";
+  twitterLink.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/twitter.svg)";
   PaktQuiz.addClass(twitterLink, "pakt-quiz-twitter-share");
   socialLinks.appendChild(twitterLink);
 
   var textLink = document.createElement("a");
   textLink.innerHTML = "Text";
   textLink.href = "sms:1234567890;?&body=" + encodeURIComponent(message + " " + shareUrl);
+  textLink.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/text_share_button.svg)";
   PaktQuiz.addClass(textLink, "pakt-quiz-text-share");
   socialLinks.appendChild(textLink);
 
   var emailLink = document.createElement("a");
   emailLink.innerHTML = "Email";
   emailLink.href = "mailto:?&subject=" + encodeURIComponent(message) + "&body=" + encodeURIComponent(shareUrl);
+  emailLink.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/email.png)";
   PaktQuiz.addClass(emailLink, "pakt-quiz-email-share");
   socialLinks.appendChild(emailLink);
 
@@ -890,15 +899,23 @@ PaktQuiz.Newsletter.prototype.renderBlurb = function() {
 document.addEventListener("DOMContentLoaded", function(){
   var quizData = document.getElementById("pakt_quiz").innerHTML.trim();
   var quizResultsData = document.getElementById("pakt_quiz_results").innerHTML.trim();
+  var assetBaseUrl = document.getElementById("pakt_assets_base_url").innerHTML.trim();
 
-  var quiz = new PaktQuiz(quizData, quizResultsData);
+  var quiz = new PaktQuiz({
+    quizCopy: quizData,
+    assetBaseUrl: assetBaseUrl
+  });
+
   window.paktQuiz = quiz;
 
   var container = document.getElementsByClassName("main-content")[0];
   container.innerHTML = "";
   container.appendChild(quiz.render(container));
 
-  quiz.results = new PaktQuiz.Results(quiz, quizResultsData);
+  quiz.results = new PaktQuiz.Results({
+    quiz: quiz,
+    quizResultsData: quizResultsData
+  });
 
   setTimeout(function(){
     var pastResults = PaktQuiz.getQueryStrings()["results"];

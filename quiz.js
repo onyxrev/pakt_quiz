@@ -126,6 +126,9 @@ PaktQuiz.prototype.grade = function(){
   var newsletter = new PaktQuiz.Newsletter();
   this.resultsContainer.appendChild(newsletter.render());
 
+  var newUrl = window.location.href.split("?")[0] + PaktQuiz.resultsQueryString(resultsSet);
+  window.history.pushState({path:newUrl},'',newUrl);
+
   setTimeout(function(){
     this.showWaitingAnimation();
     this.questions[this.currentQuestion].demote(0);
@@ -196,9 +199,12 @@ PaktQuiz.decodeResults = function(codedResults) {
   return out;
 };
 
-PaktQuiz.baseUrl = "https://pakt.io/quiz";
+PaktQuiz.baseUrl = document.getElementById("pakt_quiz_url").innerHTML.trim();
 PaktQuiz.shareUrl = function(resultsSet){
-  return PaktQuiz.baseUrl + "?results=" + PaktQuiz.encodeResults(resultsSet);
+  return PaktQuiz.baseUrl + PaktQuiz.resultsQueryString(resultsSet);
+};
+PaktQuiz.resultsQueryString = function(resultsSet){
+  return "?results=" + PaktQuiz.encodeResults(resultsSet);
 };
 
 PaktQuiz.Question = function(questionAndChoices, quiz, index){

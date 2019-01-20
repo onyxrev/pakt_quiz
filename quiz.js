@@ -675,8 +675,10 @@ PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSe
   var rightOrNot = document.createElement("p");
   if (this.level == estimate){
     rightOrNot.innerHTML = "You were right!";
-  } else {
+  } else if (this.level < estimate) {
     rightOrNot.innerHTML = "Well this sure is awkward...";
+  } else {
+    rightOrNot.innerHTML = "Congratulations! You are actually snobbier than you thought!";
   }
 
   descriptionContainer.appendChild(rightOrNot);

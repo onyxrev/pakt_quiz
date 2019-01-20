@@ -147,7 +147,11 @@ PaktQuiz.prototype.showWaitingAnimation = function(){
 
   var text = document.createElement("h3");
   PaktQuiz.addClass(text, "pakt-quiz-waiting-text");
-  text.innerHTML = "Results brewing...";
+  text.innerHTML = PaktQuiz.normalizeHTML(
+    PaktQuiz.escapeHTML(
+      document.getElementById("pakt_results_waiting_message").innerHTML.trim()
+    )
+  );
   img.appendChild(text);
 
   this.container.appendChild(waiting);

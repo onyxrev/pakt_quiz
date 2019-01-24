@@ -397,7 +397,7 @@ PaktQuiz.Question.prototype.renderPreviousButton = function(){
   var button = document.createElement("div");
   button.innerHTML = "Previous";
   PaktQuiz.addClass(button, "pakt-quiz-button-previous");
-  button.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/previous_button.svg)";
+  button.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/back_button.svg)";
 
   button.onclick = function(){
     PaktQuiz.addClass(this.element, "navigated");

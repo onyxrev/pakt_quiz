@@ -148,11 +148,6 @@ body{
   visibility: visible;
 }
 
-#pakt_quiz .pakt-quiz-button-previous{
-  width: 6vw;
-  height: 6vw;
-}
-
 #pakt_quiz .pakt-quiz-button-previous,
 #pakt_quiz .pakt-quiz-button-next,
 #pakt_quiz .pakt-quiz-button-grade{
@@ -430,7 +425,7 @@ body{
   }
 
   #pakt_quiz label{
-    font-size: 2em;
+    font-size: 2.5em;
   }
 
   #pakt_quiz .pakt-quiz-button-grade{
@@ -440,7 +435,7 @@ body{
   }
 
   #pakt_quiz .pakt-quiz-question-prompt{
-    font-size: 3em;
+    font-size: 4em;
     line-height: 1.3em;
   }
 
@@ -472,8 +467,8 @@ body{
   .pakt-quiz-social-links .pakt-quiz-twitter-share,
   .pakt-quiz-social-links .pakt-quiz-text-share,
   .pakt-quiz-social-links .pakt-quiz-email-share{
-    width: 6vw;
-    height: 6vw;
+    width: 8vw;
+    height: 8vw;
   }
 
   .pakt-quiz-newsletter{

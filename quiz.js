@@ -292,6 +292,9 @@ PaktQuiz.Question.prototype.render = function(){
   var responseContainer = document.createElement("div");
   PaktQuiz.addClass(responseContainer, "pakt-quiz-question-response-container");
 
+  var intermediateResponseContainer = document.createElement("div");
+  responseContainer.appendChild(intermediateResponseContainer);
+
   promptContainer.appendChild(this.renderPrompt());
   promptContainer.appendChild(this.renderImage());
 
@@ -312,17 +315,17 @@ PaktQuiz.Question.prototype.render = function(){
   }
 
   if (this.index !== 0) {
-    responseContainer.appendChild(this.renderPreviousButton());
+    intermediateResponseContainer.appendChild(this.renderPreviousButton());
   }
 
-  responseContainer.appendChild(choicesContainer);
+  intermediateResponseContainer.appendChild(choicesContainer);
 
   if (this.index !== this.quiz.questions.length - 1){
     this.nextButton = this.renderNextButton();
-    responseContainer.appendChild(this.nextButton);
+    intermediateResponseContainer.appendChild(this.nextButton);
   } else {
     this.nextButton = this.renderGradeButton();
-    responseContainer.appendChild(this.nextButton);
+    intermediateResponseContainer.appendChild(this.nextButton);
   }
 
   this.element.appendChild(promptContainer);

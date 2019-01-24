@@ -762,7 +762,7 @@ PaktQuiz.Results.Level.prototype.renderSharingTools = function(resultsSet) {
 
   var textLink = document.createElement("a");
   textLink.innerHTML = "Text";
-  textLink.href = "sms:1234567890;?&body=" + encodeURIComponent(message + " " + shareUrl);
+  textLink.href = "sms:?&body=" + encodeURIComponent(message + " " + shareUrl);
   textLink.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/text_share_button.svg)";
   PaktQuiz.addClass(textLink, "pakt-quiz-text-share");
   socialLinks.appendChild(textLink);

@@ -267,6 +267,16 @@ body{
   margin: .5em 0;
 }
 
+#pakt_quiz_results .pakt-product-callout{
+  font-size: .8em;
+  text-align: center;
+  margin: 1.5em;
+}
+
+#pakt_quiz_results .pakt-product-callout a{
+  color: white;
+}
+
 .pakt-quiz-results-description-container .pakt-quiz-newsletter-callout{
   margin-top: 1.5em;
   font-size: 1.2em;
@@ -362,7 +372,7 @@ body{
 
 .pakt-quiz-newsletter .pakt-newsletter-blurb{
   font-size: .7em;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
   text-align: center;
 }
 
@@ -567,5 +577,9 @@ body{
 
   #pakt_quiz_results .pakt-quiz-results-badge-container .pakt-quiz-results-description{
     font-size: 1.5em;
+  }
+
+  #pakt_quiz_results .pakt-product-callout{
+    font-size: 2em;
   }
 }

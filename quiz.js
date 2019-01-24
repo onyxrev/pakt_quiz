@@ -923,6 +923,11 @@ PaktQuiz.Newsletter.prototype.renderResultsArea = function() {
   PaktQuiz.addClass(error, "response");
   container.appendChild(error);
 
+  var productCallout = document.createElement("p");
+  PaktQuiz.addClass(productCallout, "pakt-product-callout");
+  productCallout.innerHTML = document.getElementById("pakt_product_callout").innerHTML;
+  container.appendChild(productCallout);
+
   return container;
 };
 

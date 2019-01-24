@@ -157,8 +157,9 @@ PaktQuiz.prototype.showWaitingAnimation = function(){
   this.container.appendChild(waiting);
 
   setTimeout(function(){
-    this.container.removeChild(waiting);
     PaktQuiz.addClass(this.element, "pakt-quiz-hidden");
+    this.container.removeChild(waiting);
+    window.scrollTo(0, 0);
   }.bind(this), 2500);
 };
 

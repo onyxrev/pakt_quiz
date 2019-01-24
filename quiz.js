@@ -677,6 +677,19 @@ PaktQuiz.Results.Level.prototype.renderBadgeContainer = function() {
   PaktQuiz.addClass(badgeImage, "pakt-quiz-results-badge-image");
   badgeContainer.appendChild(badgeImage);
 
+  var levelContainer = document.createElement("h3");
+  PaktQuiz.addClass(levelContainer, "pakt-quiz-results-level-title");
+  var levelText = document.createElement("span");
+  levelText.innerHTML = "Level " + this.level + ": " + this.title;
+
+  levelContainer.appendChild(levelText);
+  badgeContainer.appendChild(levelContainer);
+
+  var descriptionText = document.createElement("p");
+  descriptionText.innerHTML = PaktQuiz.normalizeHTML(this.description);
+  PaktQuiz.addClass(descriptionText, "pakt-quiz-results-description");
+  badgeContainer.appendChild(descriptionText);
+
   return badgeContainer;
 };
 
@@ -684,14 +697,17 @@ PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSe
   var descriptionContainer = document.createElement("div");
   PaktQuiz.addClass(descriptionContainer, "pakt-quiz-results-description-container");
 
-  descriptionContainer.appendChild(this.renderPreviousButton());
+  var intermediateContainer = document.createElement("div");
+  descriptionContainer.appendChild(intermediateContainer);
+
+  intermediateContainer.appendChild(this.renderPreviousButton());
 
   var estimateTitle = document.createElement("h2");
   PaktQuiz.addClass(estimateTitle, "pakt-quiz-results-estimate-title");
 
   var estimateTitleCopy = PaktQuiz.escapeHTML(document.getElementById("pakt_estimate_so_you_thought").innerHTML).trim();
   estimateTitle.innerHTML = estimateTitleCopy.replace(/X\?$/g, estimate + "?");
-  descriptionContainer.appendChild(estimateTitle);
+  intermediateContainer.appendChild(estimateTitle);
 
   var rightOrNot = document.createElement("p");
   if (this.level == estimate){
@@ -702,22 +718,15 @@ PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSe
     rightOrNot.innerHTML = PaktQuiz.escapeHTML(document.getElementById("pakt_estimate_higher").innerHTML).trim();
   }
 
-  descriptionContainer.appendChild(rightOrNot);
+  intermediateContainer.appendChild(rightOrNot);
+  intermediateContainer.appendChild(this.renderSharingTools(resultsSet));
 
-  var levelContainer = document.createElement("h3");
-  PaktQuiz.addClass(levelContainer, "pakt-quiz-results-level-title");
-  var levelText = document.createElement("span");
-  levelText.innerHTML = "Level " + this.level + ": " + this.title;
-
-  levelContainer.appendChild(levelText);
-  descriptionContainer.appendChild(levelContainer);
-
-  var descriptionText = document.createElement("p");
-  descriptionText.innerHTML = PaktQuiz.normalizeHTML(this.description);
-  PaktQuiz.addClass(descriptionText, "pakt-quiz-results-description");
-  descriptionContainer.appendChild(descriptionText);
-
-  descriptionContainer.appendChild(this.renderSharingTools(resultsSet));
+  var title = document.createElement("h3");
+  // continue work here
+  title.innerHTML = PaktQuiz.normalizeHTML(
+    PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_title").innerHTML)
+  );
+  intermediateContainer.appendChild(title);
 
   return descriptionContainer;
 };
@@ -913,12 +922,6 @@ PaktQuiz.Newsletter.prototype.renderBlurb = function() {
     PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_logo").innerHTML)
   );
   container.appendChild(logo);
-
-  var title = document.createElement("h3");
-  title.innerHTML = PaktQuiz.normalizeHTML(
-    PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_title").innerHTML)
-  );
-  container.appendChild(title);
 
   var copy = document.createElement("p");
   copy.innerHTML = PaktQuiz.normalizeHTML(

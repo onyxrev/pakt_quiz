@@ -200,44 +200,60 @@ body{
   background-color: #F5F2EB;
   padding: 5%;
   display: flex;
+  flex-direction: column;
 }
 
 #pakt_quiz_results .pakt-quiz-results-badge-container img{
-  width: 100%;
+  width: 33%;
+  margin: 0 auto;
+}
+
+#pakt_quiz_results .pakt-quiz-results-badge-container .pakt-quiz-results-level-title{
+  line-height: 1.3em;
+  font-size: 1.2em;
+  margin-bottom: .8em;
+  margin-top: .5em;
+  padding-top: .8em;
+  display: inline-block;
+  color: #4DABB2;
+}
+
+#pakt_quiz_results .pakt-quiz-results-badge-container .pakt-quiz-results-description{
+  line-height: 1.3em;
+  font-size: .8em;
+  margin: 0;
 }
 
 #pakt_quiz_results .pakt-quiz-results-description-container{
-  padding: 9%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   font-size: .8em;
+}
+
+#pakt_quiz_results .pakt-quiz-results-description-container > div{
+  margin: 0 auto;
+}
+
+#pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-sharing-tools{
+  display: inline-block;
+  margin: 0 auto;
+  border-top: 1px solid #4DABB2;
+  border-bottom: 1px solid #4DABB2;
+  padding: 1em 1em 2em 1em;
 }
 
 #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-button-previous{
   display: none;
 }
 
-#pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-level-title{
-  line-height: 1.3em;
-  font-size: 1.5em;
-  margin-bottom: .8em;
-  margin-top: .5em;
-  padding-top: .8em;
-  display: inline-block;
-  color: #4DABB2;
-  border-top: 1px solid #4DABB2;
-}
-
 #pakt_quiz_results .pakt-quiz-results-estimate-title{
   font-size: 1.5em;
 }
 
-#pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-description{
-  line-height: 1.3em;
-  margin: 0;
-}
-
 #pakt_quiz_results .pakt-quiz-results-description-container .pakt-quiz-results-share-title{
   line-height: 1.3em;
-  font-size: 1.5em;
+  font-size: 1.2em;
   color: #4DABB2;
   margin: .5em 0;
 }

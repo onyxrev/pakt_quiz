@@ -160,7 +160,7 @@ PaktQuiz.prototype.showWaitingAnimation = function(){
     PaktQuiz.addClass(this.element, "pakt-quiz-hidden");
     this.container.removeChild(waiting);
     window.scrollTo(0, 0);
-  }.bind(this), 2500);
+  }.bind(this), 4000);
 };
 
 PaktQuiz.prototype.forwardToQuestion = function(questionIndex){

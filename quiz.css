@@ -139,6 +139,12 @@ body{
   cursor: pointer;
 }
 
+#pakt_quiz .pakt-quiz-button-previous{
+  margin-bottom: 1vw;
+  width: 3vw;
+  height: 3vw;
+}
+
 #pakt_quiz .pakt-quiz-button-grade,
 #pakt_quiz .pakt-quiz-button-next{
   visibility: hidden;

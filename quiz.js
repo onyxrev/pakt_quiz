@@ -672,10 +672,13 @@ PaktQuiz.Results.Level.prototype.renderBadgeContainer = function() {
   var badgeContainer = document.createElement("div");
   PaktQuiz.addClass(badgeContainer, "pakt-quiz-results-badge-container");
 
+  var intermediateContainer = document.createElement("div");
+  badgeContainer.appendChild(intermediateContainer);
+
   var badgeImage = document.createElement("img");
   badgeImage.src = this.imageUrl;
   PaktQuiz.addClass(badgeImage, "pakt-quiz-results-badge-image");
-  badgeContainer.appendChild(badgeImage);
+  intermediateContainer.appendChild(badgeImage);
 
   var levelContainer = document.createElement("h3");
   PaktQuiz.addClass(levelContainer, "pakt-quiz-results-level-title");
@@ -683,12 +686,12 @@ PaktQuiz.Results.Level.prototype.renderBadgeContainer = function() {
   levelText.innerHTML = "Level " + this.level + ": " + this.title;
 
   levelContainer.appendChild(levelText);
-  badgeContainer.appendChild(levelContainer);
+  intermediateContainer.appendChild(levelContainer);
 
   var descriptionText = document.createElement("p");
   descriptionText.innerHTML = PaktQuiz.normalizeHTML(this.description);
   PaktQuiz.addClass(descriptionText, "pakt-quiz-results-description");
-  badgeContainer.appendChild(descriptionText);
+  intermediateContainer.appendChild(descriptionText);
 
   return badgeContainer;
 };
@@ -722,11 +725,17 @@ PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(resultsSe
   intermediateContainer.appendChild(this.renderSharingTools(resultsSet));
 
   var title = document.createElement("h3");
-  // continue work here
+  PaktQuiz.addClass(title, "pakt-quiz-newsletter-callout");
   title.innerHTML = PaktQuiz.normalizeHTML(
     PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_title").innerHTML)
   );
   intermediateContainer.appendChild(title);
+
+  var downButton = document.createElement("a");
+  downButton.href = "#newsletter";
+  downButton.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/down_button.svg)";
+  PaktQuiz.addClass(downButton, "pakt-newsletter-callout-link");
+  intermediateContainer.appendChild(downButton);
 
   return descriptionContainer;
 };
@@ -800,6 +809,10 @@ PaktQuiz.Newsletter = function(){};
 PaktQuiz.Newsletter.prototype.render = function() {
   var container = document.createElement("div");
   PaktQuiz.addClass(container, "pakt-quiz-newsletter");
+
+  var link = document.createElement("a");
+  link.name="newsletter";
+  container.appendChild(link);
 
   var form = document.createElement("form");
   form.action = "https://paktbags.us16.list-manage.com/subscribe/post?u=770d11d146c2a97addebf43f7&amp;id=61ae83d325";

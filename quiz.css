@@ -445,6 +445,47 @@ body{
   display: none;
 }
 
+.pakt-quiz-intro{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 2em;
+}
+
+.pakt-quiz-intro > div{
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 28em;
+  text-align: center;
+}
+
+.pakt-quiz-intro .pakt-quiz-intro-title{
+  color: black;
+  font-size: 2.5em;
+  text-transform: uppercase;
+}
+
+.pakt-quiz-intro .pakt-quiz-intro-blurb{
+  font-size: .8em;
+  margin-bottom: 4em;
+}
+
+.pakt-quiz-intro .pakt-quiz-intro-link{
+  width: 4em;
+  height: 4em;
+  display: inline-block;
+  text-indent: -99999px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
 /* mobile */
 
 @media only screen and (max-width : 780px) {
@@ -600,5 +641,9 @@ body{
 
   #pakt_quiz_results .pakt-product-callout{
     font-size: 2em;
+  }
+
+  .pakt-quiz-intro{
+    font-size: .8em;
   }
 }

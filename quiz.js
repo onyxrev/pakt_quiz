@@ -953,29 +953,72 @@ PaktQuiz.Newsletter.prototype.renderBlurb = function() {
   return container;
 };
 
-document.addEventListener("DOMContentLoaded", function(){
-  var quizData = document.getElementById("pakt_quiz").textContent.trim();
-  var quizResultsData = document.getElementById("pakt_quiz_results").textContent.trim();
-  var assetBaseUrl = document.getElementById("pakt_assets_base_url").textContent.trim();
+PaktQuiz.IntroScreen = function(options){
+  this.quizData = document.getElementById("pakt_quiz").textContent.trim();
+  this.quizResultsData = document.getElementById("pakt_quiz_results").textContent.trim();
+  this.assetBaseUrl = document.getElementById("pakt_assets_base_url").textContent.trim();
 
-  var quiz = new PaktQuiz({
-    quizCopy: quizData,
-    assetBaseUrl: assetBaseUrl
+  this.quiz = new PaktQuiz({
+    quizCopy: this.quizData,
+    assetBaseUrl: this.assetBaseUrl
   });
 
-  window.paktQuiz = quiz;
+  window.paktQuiz = this.quiz;
+
+  this.element = this.render();
 
   var container = document.getElementsByClassName("main-content")[0];
   container.innerHTML = "";
-  container.appendChild(quiz.render(container));
+  container.appendChild(this.element);
+};
 
-  quiz.results = new PaktQuiz.Results({
-    quiz: quiz,
-    quizResultsData: quizResultsData
+PaktQuiz.IntroScreen.prototype.start = function(){
+  var container = document.getElementsByClassName("main-content")[0];
+  container.innerHTML = "";
+  container.appendChild(this.quiz.render(container));
+
+  this.quiz.results = new PaktQuiz.Results({
+    quiz: this.quiz,
+    quizResultsData: this.quizResultsData
   });
 
   setTimeout(function(){
     var pastResults = PaktQuiz.getQueryStrings()["results"];
-    if (pastResults) quiz.populateResults(PaktQuiz.decodeResults(pastResults));
+    if (pastResults) this.quiz.populateResults(PaktQuiz.decodeResults(pastResults));
   }, 0);
+};
+
+PaktQuiz.IntroScreen.prototype.render = function(){
+  var container = document.createElement("div");
+  PaktQuiz.addClass(container, "pakt-quiz-intro");
+
+  var intermediateContainer = document.createElement("div");
+  container.appendChild(intermediateContainer);
+
+  var title = document.createElement("h1");
+  PaktQuiz.addClass(title, "pakt-quiz-intro-title");
+  title.innerHTML = PaktQuiz.normalizeHTML(
+    PaktQuiz.escapeHTML(document.getElementById("pakt_intro_title").innerHTML)
+  );
+  intermediateContainer.appendChild(title);
+
+  var blurb = document.createElement("p");
+  PaktQuiz.addClass(blurb, "pakt-quiz-intro-blurb");
+  blurb.innerHTML = PaktQuiz.normalizeHTML(
+    PaktQuiz.escapeHTML(document.getElementById("pakt_intro_blurb").innerHTML)
+  );
+  intermediateContainer.appendChild(blurb);
+
+  var link = document.createElement("a");
+  PaktQuiz.addClass(link, "pakt-quiz-intro-link");
+  intermediateContainer.appendChild(link);
+  link.onclick = this.start.bind(this);
+  link.innerHTML = "click";
+  link.style.backgroundImage = "url(" + this.quiz.assetBaseUrl + "images/intro_link.svg)";
+
+  return container;
+};
+
+document.addEventListener("DOMContentLoaded", function(){
+  new PaktQuiz.IntroScreen();
 });

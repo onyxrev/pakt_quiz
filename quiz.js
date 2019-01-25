@@ -260,7 +260,7 @@ PaktQuiz.prototype.populateResults = function(resultsSet) {
   }
 
   this.grade();
-}
+};
 
 PaktQuiz.Question.scaleExtractor = new RegExp("a scale of ([0-9]+)\-([0-9]+)");
 PaktQuiz.Question.prototype.detectType = function(){
@@ -981,11 +981,6 @@ PaktQuiz.IntroScreen.prototype.start = function(){
     quiz: this.quiz,
     quizResultsData: this.quizResultsData
   });
-
-  setTimeout(function(){
-    var pastResults = PaktQuiz.getQueryStrings()["results"];
-    if (pastResults) this.quiz.populateResults(PaktQuiz.decodeResults(pastResults));
-  }, 0);
 };
 
 PaktQuiz.IntroScreen.prototype.render = function(){
@@ -1020,5 +1015,16 @@ PaktQuiz.IntroScreen.prototype.render = function(){
 };
 
 document.addEventListener("DOMContentLoaded", function(){
-  new PaktQuiz.IntroScreen();
+  setTimeout(function(){
+    var intro = new PaktQuiz.IntroScreen();
+
+    var pastResults = PaktQuiz.getQueryStrings()["results"];
+    if (pastResults){
+      intro.start();
+
+      setTimeout(function(){
+        intro.quiz.populateResults(PaktQuiz.decodeResults(pastResults));
+      }, 0);
+    }
+  }, 0);
 });

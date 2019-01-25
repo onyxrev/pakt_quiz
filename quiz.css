@@ -468,6 +468,7 @@ body{
 
 .pakt-quiz-intro .pakt-quiz-intro-title{
   color: black;
+  margin-top: 1em;
   font-size: 2.5em;
   text-transform: uppercase;
 }
@@ -549,6 +550,7 @@ body{
   }
 
   #pakt_quiz .pakt-quiz-question-prompt{
+    color: black;
     font-size: 4em;
     line-height: 1.3em;
   }
@@ -644,6 +646,6 @@ body{
   }
 
   .pakt-quiz-intro{
-    font-size: .8em;
+    font-size: 3vh;
   }
 }

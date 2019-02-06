@@ -35,6 +35,8 @@ var PaktQuiz = function(options){
 };
 
 PaktQuiz.transitionTime = 500; // milliseconds
+PaktQuiz.mobileBreakpoint = 780; // px
+PaktQuiz.waitingAnimationTime = 3000; // milliseconds
 
 PaktQuiz.startsWithNumberMatcher = new RegExp("^[0-9]+\.? ");
 PaktQuiz.startsWithNumber = function(line){
@@ -160,7 +162,7 @@ PaktQuiz.prototype.showWaitingAnimation = function(){
     PaktQuiz.addClass(this.element, "pakt-quiz-hidden");
     this.container.removeChild(waiting);
     window.scrollTo(0, 0);
-  }.bind(this), 4000);
+  }.bind(this), PaktQuiz.waitingAnimationTime);
 };
 
 PaktQuiz.prototype.forwardToQuestion = function(questionIndex){
@@ -185,6 +187,13 @@ PaktQuiz.prototype.backwardToQuestion = function(questionIndex){
   this.questions[questionIndex].promote(true);
 };
 
+PaktQuiz.prototype.scrollTo = function(questionIndex){
+  // only scroll for "mobile"
+  if (document.body.clientWidth > PaktQuiz.mobileBreakpoint) return;
+
+  var position = this.questions[questionIndex].element.offsetTop;
+  window.scroll({top: position, left: 0, behavior: 'smooth' });
+};
 
 PaktQuiz.encodeResults = function(resultsSet) {
   var out = [];
@@ -463,6 +472,8 @@ PaktQuiz.Question.prototype.promote = function(isReversed){
   var top = quizHeight + "px";
   if (isReversed) top = "-" + top;
   this.element.style.top = top;
+
+  this.quiz.scrollTo(this.index);
 
   setTimeout(function(){
     PaktQuiz.removeClass(this.element, "pakt-quiz-promoting");

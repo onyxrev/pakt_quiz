@@ -387,13 +387,6 @@ body{
   cursor: pointer;
 }
 
-#pakt_quiz #mce-responses{
-  display: block;
-  margin-top: 1em;
-  font-size: 1em;
-  text-align: center;
-}
-
 .pakt-quiz-newsletter .pakt-newsletter-blurb{
   font-size: 1em;
   margin-bottom: 2em;

@@ -829,13 +829,11 @@ PaktQuiz.Newsletter.prototype.render = function() {
   container.appendChild(link);
 
   var form = document.createElement("form");
-  form.action = "https://paktbags.us16.list-manage.com/subscribe/post?u=770d11d146c2a97addebf43f7&amp;id=61ae83d325";
-  form.method = "post";
-  form.id = "mc-embedded-subscribe-form";
-  form.name = "mc-embedded-subscribe-form";
+  form.action = "https://manage.kmail-lists.com/subscriptions/subscribe?a=KvaAPA&g=QyMCFB";
+  form.method = "POST";
   form.target = "_blank";
   form.novalidate = "novalidate";
-  PaktQuiz.addClass(form, "validate");
+  PaktQuiz.addClass(form, "klaviyo_subscription_form");
 
   form.appendChild(this.renderBlurb());
   form.appendChild(this.renderEmail());
@@ -853,9 +851,6 @@ PaktQuiz.Newsletter.prototype.render = function() {
 PaktQuiz.Newsletter.prototype.initialize = function() {
   if (PaktQuiz.Newsletter.initialized) return;
 
-  document.head.appendChild(this.renderMailchimpScriptTag());
-//  document.head.appendChild(this.renderMailchimpLinkTag());
-
   (function($) {
     window.fnames = new Array();
     window.ftypes = new Array();
@@ -872,9 +867,9 @@ PaktQuiz.Newsletter.prototype.renderEmail = function() {
 
   var input = document.createElement("input");
   input.type = "email";
-  input.name = "EMAIL";
+  input.name = "kb398f0c1fb438e4d0bbf3578ce759bdf";
   input.placeholder = "ENTER EMAIL";
-  input.id = "mce-EMAIL";
+  input.id = "id_kb398f0c1fb438e4d0bbf3578ce759bdf";
   input.value = "";
   PaktQuiz.addClass(input, "email");
   container.appendChild(input);
@@ -886,41 +881,11 @@ PaktQuiz.Newsletter.prototype.renderSubmitButton = function() {
   var button = document.createElement("input");
   button.type = "submit";
   button.name = "subscribe";
-  button.id = "mc-embedded-subscribe";
+  button.id = "subscribe_button";
   button.value = "GET UPDATES";
   PaktQuiz.addClass(button, "button");
 
   return button;
-};
-
-PaktQuiz.Newsletter.prototype.renderBotTrap = function() {
-  var container = document.createElement("div");
-  container.style = "position: absolute; left: -5000px;";
-  container["aria-hidden"] = true;
-
-  var input = document.createElement("input");
-  input.type = "text";
-  input.name = "b_770d11d146c2a97addebf43f7_61ae83d325";
-  input.tabindex = -1;
-  input.value = "";
-  container.appendChild(input);
-
-  return input;
-};
-
-PaktQuiz.Newsletter.prototype.renderMailchimpScriptTag = function() {
-  var script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = "https://s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js";
-  return script;
-};
-
-PaktQuiz.Newsletter.prototype.renderMailchimpLinkTag = function() {
-  var link = document.createElement("link");
-  link.href = "https://cdn-images.mailchimp.com/embedcode/classic-10_7.css";
-  link.rel = "stylesheet";
-  link.type = "text/css";
-  return link;
 };
 
 PaktQuiz.Newsletter.prototype.renderResultsArea = function() {

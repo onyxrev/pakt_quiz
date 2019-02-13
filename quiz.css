@@ -103,6 +103,17 @@ body{
   padding: 4vw 8vw;
 }
 
+#pakt_quiz .pakt-quiz-question-retort{
+  display: block;
+  margin: 1em;
+  text-align: center;
+  visibility: hidden;
+}
+
+#pakt_quiz .pakt-quiz-question-retort.pakt-quiz-visible{
+  visibility: visible;
+}
+
 #pakt_quiz .pakt-quiz-question-image-container{
   height: 100%;
   padding: 0%;
@@ -352,6 +363,12 @@ body{
   font-weight: bold;
   box-shadow: none;
   border: none;
+  color: white;
+}
+
+.pakt-quiz-newsletter input[type="submit"]{
+  -webkit-border-radius: 0px;
+  -webkit-appearance:none;
 }
 
 .pakt-quiz-newsletter form{

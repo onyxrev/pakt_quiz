@@ -285,7 +285,7 @@ PaktQuiz.Question.prototype.detectType = function(){
 };
 
 PaktQuiz.Question.extractor = new RegExp("^([0-9]*).? (.*)$");
-PaktQuiz.Question.imageFilenameExtractor = new RegExp("(.*) Image: ?(.*)$");
+PaktQuiz.Question.imageFilenameExtractor = new RegExp("(.*) Image: ?(.*),?");
 PaktQuiz.Question.imageNameExtractor = new RegExp("(.*).{4}$");
 
 PaktQuiz.Question.prototype.render = function(){
@@ -329,6 +329,11 @@ PaktQuiz.Question.prototype.render = function(){
 
   intermediateResponseContainer.appendChild(choicesContainer);
 
+  if (this.index === 0){
+    this.retortElement = this.renderRetort();
+    intermediateResponseContainer.appendChild(this.retortElement);
+  }
+
   if (this.index !== this.quiz.questions.length - 1){
     this.nextButton = this.renderNextButton();
     intermediateResponseContainer.appendChild(this.nextButton);
@@ -350,7 +355,16 @@ PaktQuiz.Question.prototype.renderPrompt = function(){
   strong.innerHTML = PaktQuiz.normalizeHTML(this.text);
 
   return strong;
-}
+};
+
+PaktQuiz.Question.prototype.renderRetort = function(){
+  var strong = document.createElement("p");
+
+  PaktQuiz.addClass(strong, "pakt-quiz-question-retort");
+  strong.innerHTML = PaktQuiz.normalizeHTML("We'll see about that...");
+
+  return strong;
+};
 
 PaktQuiz.Question.prototype.renderAsMultipleChoice = function(){
   var div = document.createElement("div"), i;
@@ -364,6 +378,10 @@ PaktQuiz.Question.prototype.renderAsMultipleChoice = function(){
 
 PaktQuiz.Question.prototype.onChange = function(){
   PaktQuiz.addClass(this.nextButton, "pakt-quiz-visible");
+
+  if (this.retortElement){
+    PaktQuiz.addClass(this.retortElement, "pakt-quiz-visible");
+  }
 };
 
 PaktQuiz.Question.prototype.renderAsScale = function(){

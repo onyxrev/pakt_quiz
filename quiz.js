@@ -940,7 +940,7 @@ PaktQuiz.Newsletter.prototype.renderBlurb = function() {
 
   var copy = document.createElement("p");
   copy.innerHTML = PaktQuiz.normalizeHTML(
-    PaktQuiz.escapeHTML(document.getElementById("pakt_newsletter_copy").innerHTML)
+    document.getElementById("pakt_newsletter_copy").innerHTML
   );
   container.appendChild(copy);
 

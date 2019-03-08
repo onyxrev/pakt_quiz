@@ -126,7 +126,7 @@ PaktQuiz.prototype.grade = function(){
   this.resultsContainer.appendChild(level.render(resultsSet, estimate));
 
   var newsletter = new PaktQuiz.Newsletter();
-  this.resultsContainer.appendChild(newsletter.render());
+  this.resultsContainer.appendChild(newsletter.render(level));
 
   var newUrl = window.location.href.split("?")[0] + PaktQuiz.resultsQueryString(resultsSet);
   window.history.pushState({path:newUrl},'',newUrl);
@@ -838,7 +838,7 @@ PaktQuiz.Results.Level.prototype.doesMatch = function(points){
 
 PaktQuiz.Newsletter = function(){};
 
-PaktQuiz.Newsletter.prototype.render = function() {
+PaktQuiz.Newsletter.prototype.render = function(level) {
   var container = document.createElement("div");
   PaktQuiz.addClass(container, "pakt-quiz-newsletter");
 
@@ -855,6 +855,7 @@ PaktQuiz.Newsletter.prototype.render = function() {
 
   form.appendChild(this.renderBlurb());
   form.appendChild(this.renderEmail());
+  form.appendChild(this.renderQuizResults(level));
   form.appendChild(this.renderSubmitButton());
   form.appendChild(this.renderResultsArea());
   container.appendChild(form);
@@ -874,6 +875,8 @@ PaktQuiz.Newsletter.prototype.initialize = function() {
     window.ftypes = new Array();
     window.fnames[0]='EMAIL';
     window.ftypes[0]='email';
+    window.fnames[1]='QUIZ_RESULTS';
+    window.ftypes[1]='hidden';
   }(window.jQuery));
 
   PaktQuiz.Newsletter.initialized = true;
@@ -893,6 +896,19 @@ PaktQuiz.Newsletter.prototype.renderEmail = function() {
   container.appendChild(input);
 
   return container;
+};
+
+PaktQuiz.Newsletter.prototype.renderQuizResults = function(level) {
+  var container = document.createElement("div");
+//  PaktQuiz.addClass(container, "mc-field-group");
+
+  var input = document.createElement("input");
+  input.type = "hidden";
+  input.name = "k7ecb717f51c149488bc2abd30561d5e6";
+  input.id = "id_k7ecb717f51c149488bc2abd30561d5e6";
+  input.value = level.level;
+
+  return input;
 };
 
 PaktQuiz.Newsletter.prototype.renderSubmitButton = function() {

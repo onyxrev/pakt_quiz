@@ -218,6 +218,7 @@ PaktQuiz.shareUrl = function(resultsSet){
   return PaktQuiz.baseUrl + PaktQuiz.resultsQueryString(resultsSet);
 };
 PaktQuiz.resultsQueryString = function(resultsSet){
+  return ""; // Pakt requested to disable the results feature for now
   return "?results=" + PaktQuiz.encodeResults(resultsSet);
 };
 

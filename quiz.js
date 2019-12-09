@@ -904,11 +904,7 @@ PaktQuiz.Results.Level.prototype.renderDescriptionContainer = function(
   var learnMoreButtonContainer = document.createElement("div");
   var learnMoreButton = document.createElement("a");
   learnMoreButton.innerHTML = "Learn More";
-  learnMoreButton.href = PaktQuiz.normalizeHTML(
-    PaktQuiz.escapeHTML(
-      document.getElementById("pakt_pdp_url").innerHTML
-    )
-  );
+  learnMoreButton.href = "http://www.paktcoffee.com";
   PaktQuiz.addClass(learnMoreButton, "pakt-quiz-results-learn-more");
   PaktQuiz.addClass(learnMoreButton, "button");
   learnMoreButtonContainer.appendChild(learnMoreButton);
